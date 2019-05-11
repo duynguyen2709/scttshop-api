@@ -1,8 +1,11 @@
 package com.scttshop.api.Controller;
 
+import com.scttshop.api.Entity.EmptyJsonResponse;
 import com.scttshop.api.Entity.Product;
 import com.scttshop.api.Repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,7 +17,7 @@ import java.util.Optional;
 public class ProductController {
 
     @Autowired
-    ProductRepository repo;
+    private ProductRepository repo;
 
     @GetMapping("/products")
     List<Product> findAll(){
@@ -22,10 +25,13 @@ public class ProductController {
     }
 
     @GetMapping("/products/{id}")
-    Product findById(@PathVariable("id") Integer id) {
+    ResponseEntity findById(@PathVariable("id") Integer id) {
         Optional<Product> product = repo.findById(id);
 
-        return product.orElse(null);
+        if (product.isPresent())
+            return new ResponseEntity(product, HttpStatus.OK);
+
+        return new ResponseEntity(new EmptyJsonResponse(),HttpStatus.NOT_FOUND);
 
     }
 }

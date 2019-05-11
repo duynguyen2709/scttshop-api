@@ -1,10 +1,13 @@
 package com.scttshop.api.Controller;
 
 import com.scttshop.api.Entity.Category;
+import com.scttshop.api.Entity.EmptyJsonResponse;
 import com.scttshop.api.Entity.Product;
 import com.scttshop.api.Repository.CategoryRepository;
 import com.scttshop.api.Repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,10 +19,10 @@ import java.util.Optional;
 public class CategoryController {
 
     @Autowired
-    CategoryRepository repo;
+    private CategoryRepository repo;
 
     @Autowired
-    ProductRepository repo2;
+    private ProductRepository repo2;
 
     @GetMapping("/categories")
     public List<Category> findAll(){
@@ -27,10 +30,14 @@ public class CategoryController {
     }
 
     @GetMapping("/categories/{id}")
-    Category findById(@PathVariable("id") Integer id) {
+    ResponseEntity findById(@PathVariable("id") Integer id) {
         Optional<Category> category = repo.findById(id);
 
-        return category.orElse(null);
+        if (category.isPresent())
+            return new ResponseEntity(category, HttpStatus.OK);
+
+        return new ResponseEntity(new EmptyJsonResponse(),HttpStatus.NOT_FOUND);
+
     }
 
     @GetMapping("/categories/{id}/products")

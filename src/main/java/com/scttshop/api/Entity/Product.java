@@ -8,6 +8,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @NoArgsConstructor
@@ -49,9 +50,9 @@ public class Product implements Serializable {
     @Column(name="updDate")
     private Timestamp updDate;
 
-    public LocalDateTime getUpdDate(){
-
-        return updDate.toLocalDateTime();
+    public String getUpdDate(){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return updDate.toLocalDateTime().format(formatter);
     }
 
 
