@@ -18,37 +18,37 @@ public class Product implements Serializable {
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    private int productID;
+    protected int productID;
 
     @Column(name="productName")
-    private String productName;
+    protected String productName;
 
     @Column(name="categoryID")
-    private int categoryID;
+    protected int categoryID;
 
     @Column(name="manufacturer")
-    private String manufacturer;
+    protected String manufacturer;
 
     @Column(name="image")
-    private String image;
+    protected String image;
 
     @Column(name="description")
-    private String description;
+    protected String description;
 
     @Column(name="importPrice")
-    private long importPrice;
+    protected long importPrice;
 
     @Column(name="sellPrice")
-    private long sellPrice;
+    protected long sellPrice;
 
     @Column(name="isActive")
-    private int isActive;
+    protected int isActive;
 
     @Column(name="quantity")
-    private int quantity;
+    protected int quantity;
 
     @Column(name="updDate")
-    private Timestamp updDate;
+    protected Timestamp updDate;
 
     public String getUpdDate(){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

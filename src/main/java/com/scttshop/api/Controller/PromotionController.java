@@ -1,5 +1,6 @@
 package com.scttshop.api.Controller;
 
+import com.scttshop.api.Entity.DiscountProduct;
 import com.scttshop.api.Entity.EmptyJsonResponse;
 import com.scttshop.api.Entity.Product;
 import com.scttshop.api.Entity.Promotion;
@@ -19,8 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-@RestController
-public class PromotionController  {
+@RestController public class PromotionController {
 
     @Autowired
     private PromotionRepository promotionRepo;
@@ -32,7 +32,7 @@ public class PromotionController  {
     private EntityManager em;
 
     @GetMapping("/promotions")
-    List<Promotion> getListPromotion(){
+    List<Promotion> getListPromotion() {
 
         return promotionRepo.findAll();
     }
@@ -41,19 +41,45 @@ public class PromotionController  {
     ResponseEntity findById(@PathVariable("id") Integer id) {
         Optional<Promotion> promotion = promotionRepo.findById(id);
 
-        if (promotion.isPresent())
+        if (promotion.isPresent()) {
             return new ResponseEntity(promotion, HttpStatus.OK);
+        }
 
-        return new ResponseEntity(new EmptyJsonResponse(),HttpStatus.NOT_FOUND);
+        return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.NOT_FOUND);
 
     }
 
     @GetMapping("/promotions/products")
-    List<Product> findListProductOnPromotion(){
-        String query = "SELECT * FROM Product p JOIN Promotion s ON p.productID = s.appliedID WHERE s" +
-                ".type='PRODUCT' AND s.isActive=1";
+    List<DiscountProduct> findListProductOnPromotion() {
 
-        return (List<Product>) em.createNativeQuery(query, Product.class).getResultList();
+//        String query = "SELECT p.*,s.promotionDiscount,ROUND(p.sellPrice - p.sellPrice*s.promotionDiscount/100) as discountPrice from Product p JOIN Promotion s ON s.appliedID=p.productID WHERE s.type='PRODUCT' AND s.isActive=1";
+//        List<DiscountProduct> product = em.createNativeQuery(query,DiscountProduct.class).getResultList();
+
+//         find with JPA
+//         multiple queries
+        List<Promotion> promotion = promotionRepo.findByTypeAndIsActive("PRODUCT",true);
+
+        if (promotion.isEmpty()) {
+            return Collections.EMPTY_LIST;
+        }
+
+        List<DiscountProduct> product = new ArrayList<>();
+
+        for (Promotion promo : promotion) {
+            Optional<Product> prod = prodRepo.findById(promo.getAppliedID());
+
+            if (prod.isPresent()) {
+                DiscountProduct discountProduct = new DiscountProduct(prod.get());
+                discountProduct.setPromotionDiscount(promo.getPromotionDiscount());
+                long newPrice = discountProduct.getSellPrice() -
+                        discountProduct.getPromotionDiscount() * discountProduct.getSellPrice() / 100;
+                discountProduct.setDiscountPrice(newPrice);
+
+                product.add(discountProduct);
+            }
+        }
+
+        return product;
     }
 
 }
