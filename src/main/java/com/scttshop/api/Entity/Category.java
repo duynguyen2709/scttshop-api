@@ -23,9 +23,6 @@ public class Category implements Serializable {
     @Column(name="categoryName")
     private String categoryName;
 
-    @Column(name="categorySubType")
-    private String categorySubType;
-
     @Column(name="updDate")
     private Timestamp updDate;
 
