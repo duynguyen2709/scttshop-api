@@ -1,5 +1,8 @@
 package com.scttshop.api;
 
+import com.hazelcast.cache.HazelcastCacheManager;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.instance.HazelcastInstanceImpl;
 import com.scttshop.api.Repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -24,16 +27,6 @@ public class ScttshopApiApplication implements CommandLineRunner {
 	public static void main(String[] args) {
 
 		SpringApplication.run(ScttshopApiApplication.class, args);
-	}
-
-	@Bean
-	public CacheManager cacheManager() {
-		SimpleCacheManager cacheManager = new SimpleCacheManager();
-		cacheManager.setCaches(Arrays.asList(
-				new ConcurrentMapCache("categories"),
-				new ConcurrentMapCache("promotions"),
-				new ConcurrentMapCache("products")));
-		return cacheManager;
 	}
 
 	@Override public void run(String... args) throws Exception {

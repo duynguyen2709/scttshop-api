@@ -36,14 +36,13 @@ public class PromotionController {
     private EntityManager em;
 
     @GetMapping("/promotions")
-    @Cacheable("promotions")
+    @Cacheable(value="promotions",key="all")
     List<Promotion> getListPromotion() {
-
         return promotionRepo.findAll();
     }
 
     @GetMapping("/promotions/{id}")
-    @Cacheable("promotion")
+    @Cacheable(value="promotions",key="#id")
     ResponseEntity findById(@PathVariable("id") Integer id) {
         Optional<Promotion> promotion = promotionRepo.findById(id);
 
@@ -56,7 +55,7 @@ public class PromotionController {
     }
 
     @GetMapping("/promotions/products")
-    @Cacheable("promotionproducts")
+    @Cacheable(value="promotions",key="product")
     List<DiscountProduct> findListProductOnPromotion() {
 
 //        String query = "SELECT p.*,s.promotionDiscount,ROUND(p.sellPrice - p.sellPrice*s.promotionDiscount/100) as discountPrice from Product p JOIN Promotion s ON s.appliedID=p.productID WHERE s.type='PRODUCT' AND s.isActive=1";

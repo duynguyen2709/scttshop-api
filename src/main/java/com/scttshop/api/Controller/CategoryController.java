@@ -35,7 +35,7 @@ public class CategoryController {
     }
 
     @GetMapping("/categories/{id}")
-    @Cacheable("category")
+    @Cacheable(value="categories",key="#id")
     ResponseEntity findById(@PathVariable("id") Integer id) {
         Optional<Category> category = repo.findById(id);
 
@@ -47,7 +47,7 @@ public class CategoryController {
     }
 
     @GetMapping("/categories/{id}/products")
-    @Cacheable("categoryproduct")
+    @Cacheable(value="categories",key="'products' + #id")
     List<DiscountProduct> findListProductOfCategory(@PathVariable("id") Integer categoryID) {
         final List<Product> all = repo2.findByCategoryID(categoryID);
 

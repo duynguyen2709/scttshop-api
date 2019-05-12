@@ -29,15 +29,16 @@ public class ProductController {
     @Autowired
     private PromotionRepository promotionRepository;
 
-
     @Autowired
     EntityManager em;
 
     @GetMapping("/products")
-    @Cacheable("products")
+    @Cacheable(value = "products")
     List<DiscountProduct> findAll(){
 
-        final List<Product> all = em.createQuery("SELECT p FROM Product p",Product.class).getResultList();
+//        final List<Product> all = em.createQuery("SELECT p FROM Product p",Product.class).getResultList();
+
+        List<Product> all = repo.findAll();
 
         List<DiscountProduct> list = new ArrayList<>();
 
@@ -53,7 +54,7 @@ public class ProductController {
     }
 
     @GetMapping("/products/{id}")
-    @Cacheable("product")
+    @Cacheable(value = "products",key="#id")
     ResponseEntity findById(@PathVariable("id") Integer id) {
         Optional<Product> product = repo.findById(id);
 
@@ -83,6 +84,7 @@ public class ProductController {
         }
     }
 
+    @Cacheable(value="promotions",key="'product' + #id")
     public Promotion isOnPromotion(Integer id){
         Promotion promo = promotionRepository.findByTypeAndAppliedIDAndIsActive("PRODUCT",id,true);
 
