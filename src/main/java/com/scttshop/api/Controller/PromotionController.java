@@ -7,6 +7,9 @@ import com.scttshop.api.Entity.Promotion;
 import com.scttshop.api.Repository.ProductRepository;
 import com.scttshop.api.Repository.PromotionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +23,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-@RestController public class PromotionController {
+@RestController
+public class PromotionController {
 
     @Autowired
     private PromotionRepository promotionRepo;
@@ -32,12 +36,14 @@ import java.util.Optional;
     private EntityManager em;
 
     @GetMapping("/promotions")
+    @Cacheable("promotions")
     List<Promotion> getListPromotion() {
 
         return promotionRepo.findAll();
     }
 
     @GetMapping("/promotions/{id}")
+    @Cacheable("promotion")
     ResponseEntity findById(@PathVariable("id") Integer id) {
         Optional<Promotion> promotion = promotionRepo.findById(id);
 
@@ -50,6 +56,7 @@ import java.util.Optional;
     }
 
     @GetMapping("/promotions/products")
+    @Cacheable("promotionproducts")
     List<DiscountProduct> findListProductOnPromotion() {
 
 //        String query = "SELECT p.*,s.promotionDiscount,ROUND(p.sellPrice - p.sellPrice*s.promotionDiscount/100) as discountPrice from Product p JOIN Promotion s ON s.appliedID=p.productID WHERE s.type='PRODUCT' AND s.isActive=1";

@@ -7,6 +7,7 @@ import com.scttshop.api.Entity.Promotion;
 import com.scttshop.api.Repository.ProductRepository;
 import com.scttshop.api.Repository.PromotionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +34,7 @@ public class ProductController {
     EntityManager em;
 
     @GetMapping("/products")
+    @Cacheable("products")
     List<DiscountProduct> findAll(){
 
         final List<Product> all = em.createQuery("SELECT p FROM Product p",Product.class).getResultList();
@@ -42,17 +44,7 @@ public class ProductController {
         for (Product prod: all){
             DiscountProduct discountProduct = new DiscountProduct(prod);
 
-            Promotion promotion = isOnPromotion(discountProduct.getProductID());
-
-            if (promotion != null)
-            {
-                discountProduct.setPromotionDiscount(promotion.getPromotionDiscount());
-                discountProduct.setDiscountPrice(discountProduct.getSellPrice() - discountProduct.getSellPrice()*discountProduct.getPromotionDiscount()/100);
-            }
-            else {
-                discountProduct.setDiscountPrice(discountProduct.getSellPrice());
-                discountProduct.setPromotionDiscount(0);
-            }
+            setPromotion(discountProduct);
 
             list.add(discountProduct);
         }
@@ -61,23 +53,14 @@ public class ProductController {
     }
 
     @GetMapping("/products/{id}")
+    @Cacheable("product")
     ResponseEntity findById(@PathVariable("id") Integer id) {
         Optional<Product> product = repo.findById(id);
 
         if (product.isPresent()) {
             DiscountProduct discountProduct = new DiscountProduct(product.get());
 
-            Promotion promotion = isOnPromotion(discountProduct.getProductID());
-
-            if (promotion != null)
-            {
-                discountProduct.setPromotionDiscount(promotion.getPromotionDiscount());
-                discountProduct.setDiscountPrice(discountProduct.getSellPrice() - discountProduct.getSellPrice()*discountProduct.getPromotionDiscount()/100);
-            }
-            else {
-                discountProduct.setDiscountPrice(discountProduct.getSellPrice());
-                discountProduct.setPromotionDiscount(0);
-            }
+            setPromotion(discountProduct);
 
             return new ResponseEntity(discountProduct, HttpStatus.OK);
         }
@@ -86,7 +69,21 @@ public class ProductController {
 
     }
 
-    private Promotion isOnPromotion(Integer id){
+    private void setPromotion(DiscountProduct discountProduct) {
+        Promotion promotion = isOnPromotion(discountProduct.getProductID());
+
+        if (promotion != null) {
+            discountProduct.setPromotionDiscount(promotion.getPromotionDiscount());
+            discountProduct.setDiscountPrice(discountProduct.getSellPrice() -
+                    discountProduct.getSellPrice() * discountProduct.getPromotionDiscount() / 100);
+        }
+        else {
+            discountProduct.setDiscountPrice(discountProduct.getSellPrice());
+            discountProduct.setPromotionDiscount(0);
+        }
+    }
+
+    public Promotion isOnPromotion(Integer id){
         Promotion promo = promotionRepository.findByTypeAndAppliedIDAndIsActive("PRODUCT",id,true);
 
         return promo;
