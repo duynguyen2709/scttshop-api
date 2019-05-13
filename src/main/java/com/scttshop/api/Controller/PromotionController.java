@@ -63,7 +63,7 @@ public class PromotionController {
 
 //         find with JPA
 //         multiple queries
-        List<Promotion> promotion = promotionRepo.findByTypeAndIsActive("PRODUCT",true);
+        List<Promotion> promotion = promotionRepo.findByTypeAndIsActiveOrderByAppliedID("PRODUCT",true);
 
         if (promotion.isEmpty()) {
             return Collections.EMPTY_LIST;

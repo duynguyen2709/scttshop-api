@@ -14,7 +14,7 @@ import java.util.List;
 public interface PromotionRepository extends JpaRepository<Promotion,Integer> {
 
         @Cacheable(value="promotions",key="#type + #isActive")
-        List<Promotion> findByTypeAndIsActive(String type,boolean isActive);
+        List<Promotion> findByTypeAndIsActiveOrderByAppliedID(String type,boolean isActive);
 
         @Cacheable(value="promotions",key="#type + #isActive + #id")
         Promotion findByTypeAndAppliedIDAndIsActive(String type,Integer id,boolean isActive);
