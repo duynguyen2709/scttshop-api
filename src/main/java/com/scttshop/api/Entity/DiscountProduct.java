@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -14,6 +15,8 @@ public class DiscountProduct extends Product {
     private int promotionDiscount;
 
     private long discountPrice;
+
+    private List<DiscountProduct> relatedProducts;
 
     public DiscountProduct(Product p){
         this.productID = p.productID;

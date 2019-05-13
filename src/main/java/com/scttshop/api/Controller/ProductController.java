@@ -63,10 +63,36 @@ public class ProductController {
 
             setPromotion(discountProduct);
 
+            String query = String.format("SELECT * FROM Product p WHERE p.manufacturer = '%s' " +
+                            "AND p.categoryID = '%s' AND p.productID <> '%s' LIMIT 4"
+                    ,discountProduct.getManufacturer()
+                    ,discountProduct.getCategoryID()
+                    ,discountProduct.getProductID());
+
+            List<Product> listProduct = em.createNativeQuery(query,Product.class).getResultList();
+            List<DiscountProduct> list = convertListProduct(listProduct);
+
+            discountProduct.setRelatedProducts(list);
+
             return new ResponseEntity(discountProduct, HttpStatus.OK);
         }
 
         return new ResponseEntity(new EmptyJsonResponse(),HttpStatus.NOT_FOUND);
+
+    }
+
+    private List<DiscountProduct> convertListProduct(List<Product> listProduct){
+        List<DiscountProduct> result = new ArrayList<>();
+
+        for (Product prod: listProduct){
+            DiscountProduct entity = new DiscountProduct(prod);
+
+            setPromotion(entity);
+
+            result.add(entity);
+        }
+
+        return result;
 
     }
 
