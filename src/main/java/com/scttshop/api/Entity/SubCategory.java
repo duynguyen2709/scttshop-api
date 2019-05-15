@@ -8,30 +8,29 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name="Category")
-public class Category implements Serializable {
+@Entity(name="SubCategory")
+public class SubCategory implements Serializable {
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @JsonIgnore
+    private int subCategoryID;
 
+    @Column(name="categoryID")
+    @JsonIgnore
     private int categoryID;
 
-    @Column(name="categoryName")
-    private String categoryName;
+    @Column(name="subCategoryName")
+    private String subCategoryName;
 
     @Column(name="totalProductType")
+    @JsonIgnore
     private int totalProductType;
-
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "categoryID", cascade = CascadeType.ALL)
-    private List<SubCategory> subCategories = new ArrayList<>();
 
     @Column(name="updDate")
     @JsonIgnore

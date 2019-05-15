@@ -23,6 +23,8 @@ import java.util.Arrays;
 @EnableCaching
 public class ScttshopApiApplication implements CommandLineRunner {
 
+	@Autowired
+	CategoryRepository repo;
 
 	public static void main(String[] args) {
 
@@ -30,6 +32,5 @@ public class ScttshopApiApplication implements CommandLineRunner {
 	}
 
 	@Override public void run(String... args) throws Exception {
-
 	}
 }
