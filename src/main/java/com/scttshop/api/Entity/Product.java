@@ -1,5 +1,6 @@
 package com.scttshop.api.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -48,6 +49,7 @@ public class Product implements Serializable {
     protected int quantity;
 
     @Column(name="updDate")
+    @JsonIgnore
     protected Timestamp updDate;
 
     public String getUpdDate(){

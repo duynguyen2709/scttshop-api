@@ -1,5 +1,6 @@
 package com.scttshop.api.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -42,6 +43,7 @@ public class Promotion implements Serializable {
     private boolean isActive;
 
     @Column
+    @JsonIgnore
     private Timestamp updDate;
 
     public String getUpdDate(){
