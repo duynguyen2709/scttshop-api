@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +36,28 @@ public class PromotionController {
     @GetMapping("/promotions")
     @Cacheable(value="promotions",key="all")
     List<Promotion> getListPromotion() {
-        return promotionRepo.findAll();
+
+        final List<Promotion> all = promotionRepo.findAll();
+        for (Promotion promotion: all){
+
+            switch (promotion.getType()) {
+                case "PRODUCT":
+//                    String query = "SELECT p.productName from Product p JOIN Promotion s " +
+//                            "ON p.productID = s.appliedID WHERE s.type = 'PRODUCT' " +
+//                            "AND p.productID = " + promotion.getAppliedID();
+//
+//                    String productName = String.valueOf(em.createNativeQuery(query).getSingleResult());
+                    String productName = promotionRepo.getAppliedName(promotion.getAppliedID());
+                    promotion.setAppliedName(productName);
+                    break;
+                case "CATEGORY":
+                    break;
+                case "SUBCATEGORY":
+                    break;
+            }
+        }
+
+        return all;
     }
 
     @GetMapping("/promotions/{id}")

@@ -27,6 +27,9 @@ public class Promotion implements Serializable {
     @Column
     private int appliedID;
 
+    @Transient
+    private String appliedName;
+
     @Column
     private int promotionDiscount;
 
@@ -40,7 +43,7 @@ public class Promotion implements Serializable {
     private Timestamp timeTo;
 
     @Column
-    private boolean isActive;
+    private int isActive;
 
     @Column
     @JsonIgnore
