@@ -112,7 +112,7 @@ public class ProductController {
 
     @Cacheable(value="promotions",key="'product' + #id")
     public Promotion isOnPromotion(Integer id){
-        Promotion promo = promotionRepository.findByTypeAndAppliedIDAndIsActive("PRODUCT",id,true);
+        Promotion promo = promotionRepository.findByTypeAndAppliedIDAndIsActive("PRODUCT",id,1);
 
         return promo;
     }
