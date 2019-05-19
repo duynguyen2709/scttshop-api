@@ -34,7 +34,7 @@ public class ProductController {
 
     @GetMapping("/products")
     @Cacheable(value = "products")
-    List<DiscountProduct> findAll(){
+    public List<DiscountProduct> findAll(){
 
 //        final List<Product> all = em.createQuery("SELECT p FROM Product p",Product.class).getResultList();
 
@@ -55,7 +55,7 @@ public class ProductController {
 
     @GetMapping("/products/{id}")
     @Cacheable(value = "products",key="#id")
-    ResponseEntity findById(@PathVariable("id") Integer id) {
+    public ResponseEntity findById(@PathVariable("id") Integer id) {
         Optional<Product> product = repo.findById(id);
 
         if (product.isPresent()) {

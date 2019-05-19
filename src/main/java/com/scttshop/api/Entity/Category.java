@@ -21,7 +21,6 @@ public class Category implements Serializable {
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-
     private int categoryID;
 
     @Column(name="categoryName")
@@ -32,6 +31,7 @@ public class Category implements Serializable {
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "categoryID", cascade = CascadeType.ALL)
     private List<SubCategory> subCategories = new ArrayList<>();
+
 
     @Column(name="updDate")
     @JsonIgnore

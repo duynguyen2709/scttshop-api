@@ -3,7 +3,10 @@ package com.scttshop.api;
 import com.hazelcast.cache.HazelcastCacheManager;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.instance.HazelcastInstanceImpl;
+import com.scttshop.api.Controller.CategoryController;
+import com.scttshop.api.Controller.ProductController;
 import com.scttshop.api.Repository.CategoryRepository;
+import com.scttshop.api.Repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -24,13 +27,15 @@ import java.util.Arrays;
 public class ScttshopApiApplication implements CommandLineRunner {
 
 	@Autowired
-	CategoryRepository repo;
+	ProductController repo;
 
 	public static void main(String[] args) {
 
 		SpringApplication.run(ScttshopApiApplication.class, args);
 	}
 
-	@Override public void run(String... args) throws Exception {
+	@Override
+	public void run(String... args) throws Exception {
+		//System.out.println(repo.findAll());
 	}
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -24,8 +25,27 @@ public class Product implements Serializable {
     @Column(name="productName")
     protected String productName;
 
-    @Column(name="categoryID")
-    protected int categoryID;
+    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @JoinColumn(name = "categoryID", insertable=false, updatable=false,nullable = false)
+    @JsonIgnore
+    protected Category category;
+
+    @Column(nullable = false)
+    protected Integer categoryID;
+
+    @Transient
+    protected String categoryName;
+
+    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @JoinColumn(name = "subCategoryID", insertable=false, updatable=false,nullable = true)
+    @JsonIgnore
+    protected SubCategory subCategory;
+
+    @Transient
+    protected String subCategoryName;
+
+    @Transient
+    protected Integer subCategoryID;
 
     @Column(name="manufacturer")
     protected String manufacturer;

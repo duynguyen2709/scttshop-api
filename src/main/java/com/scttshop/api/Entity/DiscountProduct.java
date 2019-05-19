@@ -18,17 +18,28 @@ public class DiscountProduct extends Product {
 
     private List<DiscountProduct> relatedProducts;
 
-    public DiscountProduct(Product p){
-        this.productID = p.productID;
-        this.productName = p.productName;
-        this.categoryID = p.categoryID;
-        this.manufacturer = p.manufacturer;
-        this.image = p.image;
-        this.description = p.description;
-        this.importPrice = p.importPrice;
-        this.sellPrice = p.sellPrice;
-        this.isActive = p.isActive;
-        this.quantity = p.quantity;
-        this.updDate = p.updDate;
+    public DiscountProduct(Product p) {
+        try {
+            this.productID = p.productID;
+            this.productName = p.productName;
+            this.category = p.category;
+            this.subCategory = p.subCategory;
+            this.manufacturer = p.manufacturer;
+            this.image = p.image;
+            this.description = p.description;
+            this.importPrice = p.importPrice;
+            this.sellPrice = p.sellPrice;
+            this.isActive = p.isActive;
+            this.quantity = p.quantity;
+            this.updDate = p.updDate;
+            this.categoryID = p.categoryID;
+            this.categoryName = p.category.getCategoryName();
+            this.subCategoryID = p.subCategory.getSubCategoryID();
+            this.subCategoryName = p.subCategory.getSubCategoryName();
+        }
+        catch (NullPointerException e) {
+            this.subCategoryID = null;
+            this.subCategoryName = null;
+        }
     }
 }

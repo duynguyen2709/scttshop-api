@@ -3,10 +3,12 @@ package com.scttshop.api.Controller;
 import com.scttshop.api.Entity.*;
 import com.scttshop.api.Repository.CategoryRepository;
 import com.scttshop.api.Repository.ProductRepository;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,6 +33,7 @@ public class CategoryController {
     @GetMapping("/categories")
     @Cacheable("categories")
     public List<Category> findAll(){
+
         return repo.findAll();
     }
 
