@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
 import javax.validation.Valid;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -58,6 +59,7 @@ public class UserAccountController {
     public ResponseEntity insertUserAccount(@Valid @RequestBody UserAccount userAccount){
 
         try{
+            userAccount.setUpdDate(new Timestamp(System.currentTimeMillis()));
             UserAccount res = repo.save(userAccount);
 
             if (res == null)
@@ -85,6 +87,7 @@ public class UserAccountController {
                 return ResponseEntity.notFound().build();
 
             old.get().copyFieldValues(userAccount);
+            old.get().setUpdDate(new Timestamp(System.currentTimeMillis()));
 
             UserAccount updatedUser = repo.save(old.get());
 

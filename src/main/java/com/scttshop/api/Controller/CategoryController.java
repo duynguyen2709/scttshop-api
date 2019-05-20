@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
 import javax.validation.Valid;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -88,6 +89,7 @@ public class CategoryController {
 
         try{
             category.setCategoryID(0);
+            category.setUpdDate(new Timestamp(System.currentTimeMillis()));
             Category res = repo.save(category);
 
             if (res == null)
@@ -115,7 +117,7 @@ public class CategoryController {
                 return ResponseEntity.notFound().build();
 
             old.get().copyFieldValues(category);
-
+            old.get().setUpdDate(new Timestamp(System.currentTimeMillis()));
             Category updatedProduct = repo.save(old.get());
 
             if (updatedProduct == null)
