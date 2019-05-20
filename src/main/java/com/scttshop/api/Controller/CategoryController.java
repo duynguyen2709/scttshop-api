@@ -5,15 +5,17 @@ import com.scttshop.api.Repository.CategoryRepository;
 import com.scttshop.api.Repository.ProductRepository;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +33,7 @@ public class CategoryController {
     ProductController controller;
 
     @GetMapping("/categories")
-    @Cacheable("categories")
+    @Cacheable(value="categories",key="'all'")
     public List<Category> findAll(){
 
         return repo.findAll();
@@ -75,5 +77,86 @@ public class CategoryController {
         }
 
         return list;
+    }
+
+    @PostMapping("/categories")
+    @Caching(
+            put= { @CachePut(value= "categories", key= "#category.categoryID") },
+            evict= { @CacheEvict(value= "categories", key="'all'")}
+    )
+    public ResponseEntity insertCategory(@Valid @RequestBody Category category){
+
+        try{
+            category.setCategoryID(0);
+            Category res = repo.save(category);
+
+            if (res == null)
+                throw new Exception();
+
+            return new ResponseEntity(res,HttpStatus.OK);
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/categories/{id}")
+    @Caching(
+            put= { @CachePut(value= "categories", key= "#id") },
+            evict= { @CacheEvict(value= "categories", key="'all'")}
+    )
+    public ResponseEntity updateCategory(@PathVariable(value = "id") Integer id,
+                                        @Valid @RequestBody Category category){
+        try{
+            Optional<Category> old = repo.findById(id);
+
+            if (!old.isPresent())
+                return ResponseEntity.notFound().build();
+
+            old.get().copyFieldValues(category);
+
+            Category updatedProduct = repo.save(old.get());
+
+            if (updatedProduct == null)
+                throw new Exception();
+
+            return new ResponseEntity(updatedProduct,HttpStatus.OK);
+
+        }
+        //        catch (ChangeSetPersister.NotFoundException e){
+        //            System.out.println(e.getMessage());
+        //            return new ResponseEntity(new EmptyJsonResponse(),HttpStatus.NOT_FOUND);
+        //        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("/categories/{id}")
+    @Caching(
+            evict= {
+                    @CacheEvict(value="categories",key="#id"),
+                    @CacheEvict(value= "categories", key="'all'")
+            }
+    )
+    public ResponseEntity deleteCategory(@PathVariable(value = "id") Integer id){
+
+        try{
+            Optional<Category> old = repo.findById(id);
+
+            if (!old.isPresent())
+                return ResponseEntity.notFound().build();
+
+            repo.delete(old.get());
+
+            return new ResponseEntity(HttpStatus.OK);
+
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
     }
 }

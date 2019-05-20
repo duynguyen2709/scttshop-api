@@ -17,7 +17,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name="Category")
-@Table(name="Category")
 public class Category implements Serializable {
 
     @Id
@@ -43,4 +42,7 @@ public class Category implements Serializable {
         return updDate.toLocalDateTime().format(formatter);
     }
 
+    public void copyFieldValues(Category category) {
+        this.categoryName = category.categoryName;
+    }
 }
