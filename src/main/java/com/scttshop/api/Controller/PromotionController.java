@@ -79,11 +79,6 @@ public class PromotionController {
     @Cacheable(value="promotions",key="'product'")
     List<DiscountProduct> findListProductOnPromotion() {
 
-//        String query = "SELECT p.*,s.promotionDiscount,ROUND(p.sellPrice - p.sellPrice*s.promotionDiscount/100) as discountPrice from Product p JOIN Promotion s ON s.appliedID=p.productID WHERE s.type='PRODUCT' AND s.isActive=1";
-//        List<DiscountProduct> product = em.createNativeQuery(query,DiscountProduct.class).getResultList();
-
-//         find with JPA
-//         multiple queries
         List<Promotion> promotion = promotionRepo.findByTypeAndIsActiveOrderByAppliedID("PRODUCT",1);
 
         if (promotion.isEmpty()) {

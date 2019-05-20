@@ -17,6 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name="Category")
+@Table(name="Category")
 public class Category implements Serializable {
 
     @Id

@@ -7,15 +7,17 @@ import com.scttshop.api.Entity.Promotion;
 import com.scttshop.api.Repository.ProductRepository;
 import com.scttshop.api.Repository.PromotionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
 import javax.swing.text.html.parser.Entity;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,7 +35,7 @@ public class ProductController {
     EntityManager em;
 
     @GetMapping("/products")
-    @Cacheable(value = "products")
+    @Cacheable(value = "'products'",key="'all'")
     public List<DiscountProduct> findAll(){
 
 //        final List<Product> all = em.createQuery("SELECT p FROM Product p",Product.class).getResultList();
@@ -115,5 +117,87 @@ public class ProductController {
         Promotion promo = promotionRepository.findByTypeAndAppliedIDAndIsActive("PRODUCT",id,1);
 
         return promo;
+    }
+
+
+    @PostMapping("/products")
+    @Caching(
+            put= { @CachePut(value= "products", key= "#product.productID") },
+            evict= { @CacheEvict(value= "products", key="'all'")}
+    )
+    public ResponseEntity insertProduct(@Valid @RequestBody Product product){
+
+        try{
+            product.setProductID(0);
+            Product res = repo.save(product);
+
+            if (res == null)
+                throw new Exception();
+
+            return new ResponseEntity(res,HttpStatus.OK);
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/products/{id}")
+    @Caching(
+            put= { @CachePut(value= "products", key= "#id") },
+            evict= { @CacheEvict(value= "products", key="'all'")}
+    )
+    public ResponseEntity updateProduct(@PathVariable(value = "id") Integer id,
+                                          @Valid @RequestBody Product product){
+        try{
+            Optional<Product> old = repo.findById(id);
+
+            if (!old.isPresent())
+                return ResponseEntity.notFound().build();
+
+            old.get().copyFieldValues(product);
+
+            Product updatedProduct = repo.save(old.get());
+
+            if (updatedProduct == null)
+                throw new Exception();
+
+            return new ResponseEntity(updatedProduct,HttpStatus.OK);
+
+        }
+        //        catch (ChangeSetPersister.NotFoundException e){
+        //            System.out.println(e.getMessage());
+        //            return new ResponseEntity(new EmptyJsonResponse(),HttpStatus.NOT_FOUND);
+        //        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("/products/{id}")
+    @Caching(
+            evict= {
+                    @CacheEvict(value="products",key="#id"),
+                    @CacheEvict(value= "products", key="'all'")
+            }
+    )
+    public ResponseEntity deleteProduct(@PathVariable(value = "id") Integer id){
+
+        try{
+            Optional<Product> old = repo.findById(id);
+
+            if (!old.isPresent())
+                return ResponseEntity.notFound().build();
+
+            repo.delete(old.get());
+
+            return new ResponseEntity(HttpStatus.OK);
+
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
     }
 }

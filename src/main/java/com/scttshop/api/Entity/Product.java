@@ -44,7 +44,7 @@ public class Product implements Serializable {
     @Transient
     protected String subCategoryName;
 
-    @Transient
+    @Column(nullable = true)
     protected Integer subCategoryID;
 
     @Column(name="manufacturer")
@@ -62,11 +62,11 @@ public class Product implements Serializable {
     @Column(name="sellPrice")
     protected long sellPrice;
 
-    @Column(name="isActive")
-    protected int isActive;
-
     @Column(name="quantity")
     protected int quantity;
+
+    @Column(name="isActive")
+    protected int isActive;
 
     @Column(name="updDate")
     @JsonIgnore
@@ -77,6 +77,17 @@ public class Product implements Serializable {
         return updDate.toLocalDateTime().format(formatter);
     }
 
+    public void copyFieldValues(Product product) {
+        this.productName = product.productName;
+        this.categoryID = product.categoryID;
+        this.subCategoryID = product.subCategoryID;
+        this.manufacturer = product.manufacturer;
+        this.image = product.image;
+        this.description = product.description;
+        this.importPrice = product.importPrice;
+        this.sellPrice = product.sellPrice;
+        this.isActive = product.isActive;
+        this.quantity = product.quantity;
 
-
+    }
 }
