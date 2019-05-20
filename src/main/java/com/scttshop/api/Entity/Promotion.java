@@ -66,4 +66,13 @@ public class Promotion implements Serializable {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return timeTo.toLocalDateTime().format(formatter);
     }
+
+    public void copyFieldValues(Promotion promotion) {
+        this.type = promotion.type;
+        this.appliedID = promotion.appliedID;
+        this.promotionDiscount = promotion.promotionDiscount;
+        this.promotionName = promotion.promotionName;
+        this.timeFrom = promotion.timeFrom;
+        this.timeTo = promotion.timeTo;
+    }
 }

@@ -7,7 +7,10 @@ import com.scttshop.api.Entity.Promotion;
 import com.scttshop.api.Repository.ProductRepository;
 import com.scttshop.api.Repository.PromotionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +38,7 @@ public class PromotionController {
     private EntityManager em;
 
     @GetMapping("/promotions")
-    @Cacheable(value="promotions",key="all")
+    @Cacheable(value="promotions",key="'all'")
     List<Promotion> getListPromotion() {
 
         final List<Promotion> all = promotionRepo.findAll();
@@ -73,7 +76,7 @@ public class PromotionController {
     }
 
     @GetMapping("/promotions/products")
-    @Cacheable(value="promotions",key="product")
+    @Cacheable(value="promotions",key="'product'")
     List<DiscountProduct> findListProductOnPromotion() {
 
 //        String query = "SELECT p.*,s.promotionDiscount,ROUND(p.sellPrice - p.sellPrice*s.promotionDiscount/100) as discountPrice from Product p JOIN Promotion s ON s.appliedID=p.productID WHERE s.type='PRODUCT' AND s.isActive=1";
@@ -108,6 +111,11 @@ public class PromotionController {
 
 
     @PostMapping("/promotions")
+    @Caching(
+            put= { @CachePut(value= "promotions", key= "#promotion.promotionID") },
+            evict= { @CacheEvict(value= "promotions", key="'all'"),
+                     @CacheEvict(value= "promotions", key="'product'")}
+    )
     public ResponseEntity insertPromotion(@Valid @RequestBody Promotion promotion){
 
         try{
@@ -126,15 +134,22 @@ public class PromotionController {
     }
 
     @PutMapping("/promotions/{id}")
-    public ResponseEntity updatePromotion(@PathVariable(value = "id") Integer promotionID,
+    @Caching(
+            put= { @CachePut(value= "promotions", key= "#id") },
+            evict= { @CacheEvict(value= "promotions", key="'all'"),
+                     @CacheEvict(value= "promotions", key="'product'")}
+    )
+    public ResponseEntity updatePromotion(@PathVariable(value = "id") Integer id,
                                           @Valid @RequestBody Promotion promotion){
         try{
-            Optional<Promotion> old = promotionRepo.findById(promotionID);
+            Optional<Promotion> old = promotionRepo.findById(id);
 
             if (!old.isPresent())
                 return ResponseEntity.notFound().build();
 
-            Promotion updatedPromotion = promotionRepo.save(promotion);
+            old.get().copyFieldValues(promotion);
+
+            Promotion updatedPromotion = promotionRepo.save(old.get());
 
             if (updatedPromotion == null)
                 throw new Exception();
@@ -153,10 +168,17 @@ public class PromotionController {
     }
 
     @DeleteMapping("/promotions/{id}")
-    public ResponseEntity deletePromotion(@PathVariable(value = "id") Integer promotionID){
+    @Caching(
+            evict= {
+                    @CacheEvict(value="promotions",key="#id"),
+                    @CacheEvict(value= "promotions", key="'all'"),
+                    @CacheEvict(value= "promotions", key="'product'")
+            }
+    )
+    public ResponseEntity deletePromotion(@PathVariable(value = "id") Integer id){
 
         try{
-            Optional<Promotion> old = promotionRepo.findById(promotionID);
+            Optional<Promotion> old = promotionRepo.findById(id);
 
             if (!old.isPresent())
                 return ResponseEntity.notFound().build();
