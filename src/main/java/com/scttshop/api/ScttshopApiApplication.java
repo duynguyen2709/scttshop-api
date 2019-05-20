@@ -32,6 +32,8 @@ public class ScttshopApiApplication implements CommandLineRunner {
 	public static void main(String[] args) {
 
 		SpringApplication.run(ScttshopApiApplication.class, args);
+
+		System.out.println("########## Application started ! ##########");
 	}
 
 	@Override

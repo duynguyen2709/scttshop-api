@@ -1,5 +1,6 @@
 package com.scttshop.api.Entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -37,9 +38,11 @@ public class Promotion implements Serializable {
     private String promotionName;
 
     @Column
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Timestamp timeFrom;
 
     @Column
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Timestamp timeTo;
 
     @Column

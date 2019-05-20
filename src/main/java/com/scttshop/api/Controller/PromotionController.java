@@ -8,14 +8,15 @@ import com.scttshop.api.Repository.ProductRepository;
 import com.scttshop.api.Repository.PromotionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -41,17 +42,15 @@ public class PromotionController {
         for (Promotion promotion: all){
 
             switch (promotion.getType()) {
+
                 case "PRODUCT":
-//                    String query = "SELECT p.productName from Product p JOIN Promotion s " +
-//                            "ON p.productID = s.appliedID WHERE s.type = 'PRODUCT' " +
-//                            "AND p.productID = " + promotion.getAppliedID();
-//
-//                    String productName = String.valueOf(em.createNativeQuery(query).getSingleResult());
                     String productName = promotionRepo.getAppliedName(promotion.getAppliedID());
                     promotion.setAppliedName(productName);
                     break;
+
                 case "CATEGORY":
                     break;
+
                 case "SUBCATEGORY":
                     break;
             }
@@ -107,4 +106,69 @@ public class PromotionController {
         return product;
     }
 
+
+    @PostMapping("/promotions")
+    public ResponseEntity insertPromotion(@Valid @RequestBody Promotion promotion){
+
+        try{
+            promotion.setPromotionID(0);
+            Promotion res = promotionRepo.save(promotion);
+
+            if (res == null)
+                throw new Exception();
+
+            return new ResponseEntity(res,HttpStatus.OK);
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/promotions/{id}")
+    public ResponseEntity updatePromotion(@PathVariable(value = "id") Integer promotionID,
+                                          @Valid @RequestBody Promotion promotion){
+        try{
+            Optional<Promotion> old = promotionRepo.findById(promotionID);
+
+            if (!old.isPresent())
+                return ResponseEntity.notFound().build();
+
+            Promotion updatedPromotion = promotionRepo.save(promotion);
+
+            if (updatedPromotion == null)
+                throw new Exception();
+
+            return new ResponseEntity(updatedPromotion,HttpStatus.OK);
+
+        }
+//        catch (ChangeSetPersister.NotFoundException e){
+//            System.out.println(e.getMessage());
+//            return new ResponseEntity(new EmptyJsonResponse(),HttpStatus.NOT_FOUND);
+//        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("/promotions/{id}")
+    public ResponseEntity deletePromotion(@PathVariable(value = "id") Integer promotionID){
+
+        try{
+            Optional<Promotion> old = promotionRepo.findById(promotionID);
+
+            if (!old.isPresent())
+                return ResponseEntity.notFound().build();
+
+            promotionRepo.delete(old.get());
+
+            return new ResponseEntity(HttpStatus.OK);
+
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+    }
 }
