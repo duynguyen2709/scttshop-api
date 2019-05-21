@@ -22,8 +22,6 @@ public class DiscountProduct extends Product {
         try {
             this.productID = p.productID;
             this.productName = p.productName;
-            this.category = p.category;
-            this.subCategory = p.subCategory;
             this.manufacturer = p.manufacturer;
             this.image = p.image;
             this.description = p.description;
@@ -33,13 +31,8 @@ public class DiscountProduct extends Product {
             this.quantity = p.quantity;
             this.updDate = p.updDate;
             this.categoryID = p.categoryID;
-            this.categoryName = p.category.getCategoryName();
-            this.subCategoryID = p.subCategory.getSubCategoryID();
-            this.subCategoryName = p.subCategory.getSubCategoryName();
         }
         catch (NullPointerException e) {
-            this.subCategoryID = null;
-            this.subCategoryName = null;
         }
     }
 }

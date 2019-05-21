@@ -25,27 +25,11 @@ public class Product implements Serializable {
     @Column(name="productName")
     protected String productName;
 
-    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-    @JoinColumn(name = "categoryID", insertable=false, updatable=false,nullable = false)
-    @JsonIgnore
-    protected Category category;
-
-    @Column(nullable = false)
+    @Column(name="categoryID")
     protected Integer categoryID;
 
     @Transient
     protected String categoryName;
-
-    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-    @JoinColumn(name = "subCategoryID", insertable=false, updatable=false,nullable = true)
-    @JsonIgnore
-    protected SubCategory subCategory;
-
-    @Transient
-    protected String subCategoryName;
-
-    @Column(nullable = true)
-    protected Integer subCategoryID;
 
     @Column(name="manufacturer")
     protected String manufacturer;
@@ -80,7 +64,6 @@ public class Product implements Serializable {
     public void copyFieldValues(Product product) {
         this.productName = product.productName;
         this.categoryID = product.categoryID;
-        this.subCategoryID = product.subCategoryID;
         this.manufacturer = product.manufacturer;
         this.image = product.image;
         this.description = product.description;

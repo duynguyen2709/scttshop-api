@@ -41,7 +41,6 @@ public class PromotionController {
 
     @GetMapping("/promotions")
     @Cacheable(value="promotions",key="'all'")
-    @Transactional
     List<Promotion> getListPromotion() {
 
         final List<Promotion> all = promotionRepo.findAll();
@@ -61,9 +60,6 @@ public class PromotionController {
 
                 case "CATEGORY":
                     break;
-
-                case "SUBCATEGORY":
-                    break;
             }
         }
 
@@ -72,7 +68,6 @@ public class PromotionController {
 
     @GetMapping("/promotions/{id}")
     @Cacheable(value="promotions",key="#id")
-    @Transactional
     ResponseEntity findById(@PathVariable("id") Integer id) {
         Optional<Promotion> promotion = promotionRepo.findById(id);
 
@@ -86,7 +81,6 @@ public class PromotionController {
 
     @GetMapping("/promotions/products")
     @Cacheable(value="promotions",key="'product'")
-    @Transactional
     List<DiscountProduct> findListProductOnPromotion() {
 
         List<Promotion> promotion = promotionRepo.findByTypeAndIsActiveOrderByAppliedID("PRODUCT",1);
@@ -121,7 +115,6 @@ public class PromotionController {
             evict= { @CacheEvict(value= "promotions", key="'all'"),
                      @CacheEvict(value= "promotions", key="'product'")}
     )
-    @Transactional
     public ResponseEntity insertPromotion(@Valid @RequestBody Promotion promotion){
 
         try{
@@ -146,7 +139,6 @@ public class PromotionController {
             evict= { @CacheEvict(value= "promotions", key="'all'"),
                      @CacheEvict(value= "promotions", key="'product'")}
     )
-    @Transactional
     public ResponseEntity updatePromotion(@PathVariable(value = "id") Integer id,
                                           @Valid @RequestBody Promotion promotion){
         try{
@@ -165,10 +157,6 @@ public class PromotionController {
             return new ResponseEntity(updatedPromotion,HttpStatus.OK);
 
         }
-//        catch (ChangeSetPersister.NotFoundException e){
-//            System.out.println(e.getMessage());
-//            return new ResponseEntity(new EmptyJsonResponse(),HttpStatus.NOT_FOUND);
-//        }
         catch (Exception e){
             System.out.println(e.getMessage());
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
@@ -183,7 +171,6 @@ public class PromotionController {
                     @CacheEvict(value= "promotions", key="'product'")
             }
     )
-    @Transactional
     public ResponseEntity deletePromotion(@PathVariable(value = "id") Integer id){
 
         try{

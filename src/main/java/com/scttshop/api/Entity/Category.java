@@ -29,10 +29,6 @@ public class Category implements Serializable {
     @Column(name="totalProductType")
     private int totalProductType;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "categoryID", cascade = CascadeType.ALL)
-    private List<SubCategory> subCategories = new ArrayList<>();
-
-
     @Column(name="updDate")
     @JsonIgnore
     private Timestamp updDate;

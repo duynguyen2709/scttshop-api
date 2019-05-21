@@ -4,20 +4,18 @@ import com.scttshop.api.Entity.DiscountProduct;
 import com.scttshop.api.Entity.EmptyJsonResponse;
 import com.scttshop.api.Entity.Product;
 import com.scttshop.api.Entity.Promotion;
+import com.scttshop.api.Repository.CategoryRepository;
 import com.scttshop.api.Repository.ProductRepository;
 import com.scttshop.api.Repository.PromotionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
-import javax.swing.text.html.parser.Entity;
 import javax.validation.Valid;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -32,10 +30,13 @@ public class ProductController {
     private PromotionRepository promotionRepository;
 
     @Autowired
+    private CategoryRepository categoryRepository;
+
+    @Autowired
     EntityManager em;
 
     @GetMapping("/products")
-    @Cacheable(value = "'products'",key="'all'")
+    //@Cacheable(value = "'products'",key="'all'")
     public List<DiscountProduct> findAll(){
 
 //        final List<Product> all = em.createQuery("SELECT p FROM Product p",Product.class).getResultList();
@@ -46,7 +47,7 @@ public class ProductController {
 
         for (Product prod: all){
             DiscountProduct discountProduct = new DiscountProduct(prod);
-
+            discountProduct.setCategoryName(categoryRepository.findById(discountProduct.getCategoryID()).get().getCategoryName());
             setPromotion(discountProduct);
 
             list.add(discountProduct);
@@ -56,12 +57,13 @@ public class ProductController {
     }
 
     @GetMapping("/products/{id}")
-    @Cacheable(value = "products",key="#id")
+    //@Cacheable(value = "products",key="#id")
     public ResponseEntity findById(@PathVariable("id") Integer id) {
         Optional<Product> product = repo.findById(id);
 
         if (product.isPresent()) {
             DiscountProduct discountProduct = new DiscountProduct(product.get());
+            discountProduct.setCategoryName(categoryRepository.findById(discountProduct.getCategoryID()).get().getCategoryName());
 
             setPromotion(discountProduct);
 
@@ -88,6 +90,7 @@ public class ProductController {
 
         for (Product prod: listProduct){
             DiscountProduct entity = new DiscountProduct(prod);
+            entity.setCategoryName(categoryRepository.findById(entity.getCategoryID()).get().getCategoryName());
 
             setPromotion(entity);
 
@@ -112,7 +115,7 @@ public class ProductController {
         }
     }
 
-    @Cacheable(value="promotions",key="'product' + #id")
+    //@Cacheable(value="promotions",key="'product' + #id")
     public Promotion isOnPromotion(Integer id){
         Promotion promo = promotionRepository.findByTypeAndAppliedIDAndIsActive("PRODUCT",id,1);
 
@@ -121,14 +124,15 @@ public class ProductController {
 
 
     @PostMapping("/products")
-    @Caching(
-            put= { @CachePut(value= "products", key= "#product.productID") },
-            evict= { @CacheEvict(value= "products", key="'all'")}
-    )
+//    @Caching(
+//            put= { @CachePut(value= "products", key= "#product.productID") },
+//            evict= { @CacheEvict(value= "products", key="'all'")}
+//    )
     public ResponseEntity insertProduct(@Valid @RequestBody Product product){
 
         try{
             product.setProductID(0);
+            product.setUpdDate(new Timestamp(System.currentTimeMillis()));
             Product res = repo.save(product);
 
             if (res == null)
@@ -143,10 +147,10 @@ public class ProductController {
     }
 
     @PutMapping("/products/{id}")
-    @Caching(
-            put= { @CachePut(value= "products", key= "#id") },
-            evict= { @CacheEvict(value= "products", key="'all'")}
-    )
+//    @Caching(
+//            put= { @CachePut(value= "products", key= "#id") },
+//            evict= { @CacheEvict(value= "products", key="'all'")}
+//    )
     public ResponseEntity updateProduct(@PathVariable(value = "id") Integer id,
                                           @Valid @RequestBody Product product){
         try{
@@ -156,7 +160,7 @@ public class ProductController {
                 return ResponseEntity.notFound().build();
 
             old.get().copyFieldValues(product);
-
+            old.get().setUpdDate(new Timestamp(System.currentTimeMillis()));
             Product updatedProduct = repo.save(old.get());
 
             if (updatedProduct == null)
@@ -176,12 +180,12 @@ public class ProductController {
     }
 
     @DeleteMapping("/products/{id}")
-    @Caching(
-            evict= {
-                    @CacheEvict(value="products",key="#id"),
-                    @CacheEvict(value= "products", key="'all'")
-            }
-    )
+//    @Caching(
+//            evict= {
+//                    @CacheEvict(value="products",key="#id"),
+//                    @CacheEvict(value= "products", key="'all'")
+//            }
+//    )
     public ResponseEntity deleteProduct(@PathVariable(value = "id") Integer id){
 
         try{
