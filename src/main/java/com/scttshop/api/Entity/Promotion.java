@@ -74,5 +74,6 @@ public class Promotion implements Serializable {
         this.promotionName = promotion.promotionName;
         this.timeFrom = promotion.timeFrom;
         this.timeTo = promotion.timeTo;
+        this.isActive = promotion.isActive;
     }
 }

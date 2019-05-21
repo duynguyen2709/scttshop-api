@@ -14,12 +14,14 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.validation.Valid;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +41,7 @@ public class PromotionController {
 
     @GetMapping("/promotions")
     @Cacheable(value="promotions",key="'all'")
+    @Transactional
     List<Promotion> getListPromotion() {
 
         final List<Promotion> all = promotionRepo.findAll();
@@ -47,8 +50,13 @@ public class PromotionController {
             switch (promotion.getType()) {
 
                 case "PRODUCT":
-                    String productName = promotionRepo.getAppliedName(promotion.getAppliedID());
-                    promotion.setAppliedName(productName);
+                    try {
+                        String productName = promotionRepo.getAppliedName(promotion.getAppliedID());
+                        promotion.setAppliedName(productName);
+                    }
+                    catch (Exception e){
+                        promotion.setAppliedName("");
+                        }
                     break;
 
                 case "CATEGORY":
@@ -64,6 +72,7 @@ public class PromotionController {
 
     @GetMapping("/promotions/{id}")
     @Cacheable(value="promotions",key="#id")
+    @Transactional
     ResponseEntity findById(@PathVariable("id") Integer id) {
         Optional<Promotion> promotion = promotionRepo.findById(id);
 
@@ -77,6 +86,7 @@ public class PromotionController {
 
     @GetMapping("/promotions/products")
     @Cacheable(value="promotions",key="'product'")
+    @Transactional
     List<DiscountProduct> findListProductOnPromotion() {
 
         List<Promotion> promotion = promotionRepo.findByTypeAndIsActiveOrderByAppliedID("PRODUCT",1);
@@ -111,10 +121,12 @@ public class PromotionController {
             evict= { @CacheEvict(value= "promotions", key="'all'"),
                      @CacheEvict(value= "promotions", key="'product'")}
     )
+    @Transactional
     public ResponseEntity insertPromotion(@Valid @RequestBody Promotion promotion){
 
         try{
             promotion.setPromotionID(0);
+            promotion.setUpdDate(new Timestamp(System.currentTimeMillis()));
             Promotion res = promotionRepo.save(promotion);
 
             if (res == null)
@@ -134,6 +146,7 @@ public class PromotionController {
             evict= { @CacheEvict(value= "promotions", key="'all'"),
                      @CacheEvict(value= "promotions", key="'product'")}
     )
+    @Transactional
     public ResponseEntity updatePromotion(@PathVariable(value = "id") Integer id,
                                           @Valid @RequestBody Promotion promotion){
         try{
@@ -143,9 +156,9 @@ public class PromotionController {
                 return ResponseEntity.notFound().build();
 
             old.get().copyFieldValues(promotion);
+            old.get().setUpdDate(new Timestamp(System.currentTimeMillis()));
 
             Promotion updatedPromotion = promotionRepo.save(old.get());
-
             if (updatedPromotion == null)
                 throw new Exception();
 
@@ -170,6 +183,7 @@ public class PromotionController {
                     @CacheEvict(value= "promotions", key="'product'")
             }
     )
+    @Transactional
     public ResponseEntity deletePromotion(@PathVariable(value = "id") Integer id){
 
         try{
