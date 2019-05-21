@@ -17,6 +17,7 @@ import javax.persistence.EntityManager;
 import javax.validation.Valid;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,62 +40,77 @@ public class ProductController {
     //@Cacheable(value = "'products'",key="'all'")
     public List<DiscountProduct> findAll(){
 
-//        final List<Product> all = em.createQuery("SELECT p FROM Product p",Product.class).getResultList();
+        try {
+            //        final List<Product> all = em.createQuery("SELECT p FROM Product p",Product.class).getResultList();
 
-        List<Product> all = repo.findAll();
+            List<Product> all = repo.findAll();
 
-        List<DiscountProduct> list = new ArrayList<>();
+            List<DiscountProduct> list = new ArrayList<>();
 
-        for (Product prod: all){
-            DiscountProduct discountProduct = new DiscountProduct(prod);
-            discountProduct.setCategoryName(categoryRepository.findById(discountProduct.getCategoryID()).get().getCategoryName());
-            setPromotion(discountProduct);
+            for (Product prod : all) {
+                DiscountProduct discountProduct = new DiscountProduct(prod);
+                discountProduct.setCategoryName(categoryRepository.findById(discountProduct.getCategoryID()).get().getCategoryName());
+                setPromotion(discountProduct);
 
-            list.add(discountProduct);
+                list.add(discountProduct);
+            }
+
+            return list;
         }
-
-        return list;
+        catch (Exception e){
+            System.out.println(String.format("ProductController findAll ex: %s" , e.getMessage()));
+            return Collections.emptyList();
+        }
     }
 
     @GetMapping("/products/{id}")
     //@Cacheable(value = "products",key="#id")
     public ResponseEntity findById(@PathVariable("id") Integer id) {
-        Optional<Product> product = repo.findById(id);
+        try {
+            Optional<Product> product = repo.findById(id);
 
-        if (product.isPresent()) {
-            DiscountProduct discountProduct = new DiscountProduct(product.get());
-            discountProduct.setCategoryName(categoryRepository.findById(discountProduct.getCategoryID()).get().getCategoryName());
+            if (product.isPresent()) {
+                DiscountProduct discountProduct = new DiscountProduct(product.get());
+                discountProduct.setCategoryName(categoryRepository.findById(discountProduct.getCategoryID()).get().getCategoryName());
 
-            setPromotion(discountProduct);
+                setPromotion(discountProduct);
 
-            String query = String.format("SELECT * FROM Product p WHERE p.manufacturer = '%s' " +
-                            "AND p.categoryID = '%s' AND p.productID <> '%s' LIMIT 4"
-                    ,discountProduct.getManufacturer()
-                    ,discountProduct.getCategoryID()
-                    ,discountProduct.getProductID());
+                String query = String.format("SELECT * FROM Product p WHERE p.manufacturer = '%s' " +
+                        "AND p.categoryID = '%s' AND p.productID <> '%s' LIMIT 4", discountProduct.getManufacturer(), discountProduct.getCategoryID(), discountProduct.getProductID());
 
-            List<Product> listProduct = em.createNativeQuery(query,Product.class).getResultList();
-            List<DiscountProduct> list = convertListProduct(listProduct);
+                List<Product>         listProduct = em.createNativeQuery(query, Product.class).getResultList();
+                List<DiscountProduct> list        = convertListProduct(listProduct);
 
-            discountProduct.setRelatedProducts(list);
+                discountProduct.setRelatedProducts(list);
 
-            return new ResponseEntity(discountProduct, HttpStatus.OK);
+                return new ResponseEntity(discountProduct, HttpStatus.OK);
+            }
+
+            return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.NOT_FOUND);
         }
-
-        return new ResponseEntity(new EmptyJsonResponse(),HttpStatus.NOT_FOUND);
+        catch (Exception e){
+                System.out.println(String.format("CategoryController findById ex: %s" , e.getMessage()));
+                return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.BAD_REQUEST);
+            }
 
     }
 
     private List<DiscountProduct> convertListProduct(List<Product> listProduct){
+
         List<DiscountProduct> result = new ArrayList<>();
 
         for (Product prod: listProduct){
-            DiscountProduct entity = new DiscountProduct(prod);
-            entity.setCategoryName(categoryRepository.findById(entity.getCategoryID()).get().getCategoryName());
+            try {
+                DiscountProduct entity = new DiscountProduct(prod);
+                entity.setCategoryName(categoryRepository.findById(entity.getCategoryID()).get().getCategoryName());
 
-            setPromotion(entity);
+                setPromotion(entity);
 
-            result.add(entity);
+                result.add(entity);
+            }
+            catch (Exception e){
+                System.out.println(String.format("CategoryController convertListProduct ex: %s" , e.getMessage()));
+            }
         }
 
         return result;
@@ -117,9 +133,15 @@ public class ProductController {
 
     //@Cacheable(value="promotions",key="'product' + #id")
     public Promotion isOnPromotion(Integer id){
-        Promotion promo = promotionRepository.findByTypeAndAppliedIDAndIsActive("PRODUCT",id,1);
+        try {
+            Promotion promo = promotionRepository.findByTypeAndAppliedIDAndIsActive("PRODUCT", id, 1);
 
-        return promo;
+            return promo;
+        }
+        catch (Exception e){
+            System.out.println(String.format("CategoryController isOnPromotion ex: %s" , e.getMessage()));
+            return null;
+        }
     }
 
 
@@ -141,7 +163,7 @@ public class ProductController {
             return new ResponseEntity(res,HttpStatus.OK);
         }
         catch (Exception e){
-            System.out.println(e.getMessage());
+            System.out.println(String.format("CategoryController insertProduct ex: %s" , e.getMessage()));
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }
@@ -174,7 +196,7 @@ public class ProductController {
         //            return new ResponseEntity(new EmptyJsonResponse(),HttpStatus.NOT_FOUND);
         //        }
         catch (Exception e){
-            System.out.println(e.getMessage());
+            System.out.println(String.format("CategoryController updateProduct ex: %s" , e.getMessage()));
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }
@@ -200,7 +222,7 @@ public class ProductController {
 
         }
         catch (Exception e){
-            System.out.println(e.getMessage());
+            System.out.println(String.format("CategoryController deleteProduct ex: %s" , e.getMessage()));
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }

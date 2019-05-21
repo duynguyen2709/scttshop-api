@@ -14,13 +14,13 @@ import java.util.List;
 @Transactional
 public interface PromotionRepository extends JpaRepository<Promotion,Integer> {
 
-        @Cacheable(value="promotions",key="#type + #isActive")
+        //@Cacheable(value="promotions",key="#type + #isActive")
         List<Promotion> findByTypeAndIsActiveOrderByAppliedID(String type,Integer isActive);
 
-        @Cacheable(value="promotions",key="#type + #isActive + #id")
+        //@Cacheable(value="promotions",key="#type + #isActive + #id")
         Promotion findByTypeAndAppliedIDAndIsActive(String type,Integer id,Integer isActive);
 
         @Query("SELECT p.productName from Product p JOIN Promotion s ON p.productID = s.appliedID WHERE s.type = 'PRODUCT' AND p.productID = ?1")
-        @Cacheable(value="promotions")
+        //@Cacheable(value="promotions")
         String getAppliedName(Integer appliedID);
 }

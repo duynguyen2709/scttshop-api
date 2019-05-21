@@ -18,6 +18,7 @@ import javax.persistence.EntityManager;
 import javax.validation.Valid;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,57 +35,74 @@ public class CategoryController {
     ProductController controller;
 
     @GetMapping("/categories")
-    @Cacheable(value="categories",key="'all'")
+    //@Cacheable(value="categories",key="'all'")
     public List<Category> findAll(){
-
-        return repo.findAll();
+        try {
+            return repo.findAll();
+        }
+        catch (Exception e){
+            System.out.println(String.format("CategoryController findAll ex: %s" , e.getMessage()));
+            return Collections.emptyList();
+        }
     }
 
     @GetMapping("/categories/{id}")
-    @Cacheable(value="categories",key="#id")
+    //@Cacheable(value="categories",key="#id")
     ResponseEntity findById(@PathVariable("id") Integer id) {
-        Optional<Category> category = repo.findById(id);
+        try {
+            Optional<Category> category = repo.findById(id);
 
-        if (category.isPresent())
-            return new ResponseEntity(category, HttpStatus.OK);
+            if (category.isPresent())
+                return new ResponseEntity(category, HttpStatus.OK);
 
-        return new ResponseEntity(new EmptyJsonResponse(),HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.NOT_FOUND);
 
+        }
+        catch (Exception e){
+            System.out.println(String.format("CategoryController findById ex: %s" , e.getMessage()));
+            return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("/categories/{id}/products")
-    @Cacheable(value="categories",key="'products' + #id")
+    //@Cacheable(value="categories",key="'products' + #id")
     List<DiscountProduct> findListProductOfCategory(@PathVariable("id") Integer categoryID) {
-        final List<Product> all = repo2.findByCategoryID(categoryID);
+        try {
+            final List<Product> all = repo2.findByCategoryID(categoryID);
 
-        List<DiscountProduct> list = new ArrayList<>();
+            List<DiscountProduct> list = new ArrayList<>();
 
-        for (Product prod: all){
-            DiscountProduct discountProduct = new DiscountProduct(prod);
+            for (Product prod : all) {
+                DiscountProduct discountProduct = new DiscountProduct(prod);
 
-            Promotion promotion = controller.isOnPromotion(discountProduct.getProductID());
+                Promotion promotion = controller.isOnPromotion(discountProduct.getProductID());
 
-            if (promotion != null)
-            {
-                discountProduct.setPromotionDiscount(promotion.getPromotionDiscount());
-                discountProduct.setDiscountPrice(discountProduct.getSellPrice() - discountProduct.getSellPrice()*discountProduct.getPromotionDiscount()/100);
+                if (promotion != null) {
+                    discountProduct.setPromotionDiscount(promotion.getPromotionDiscount());
+                    discountProduct.setDiscountPrice(discountProduct.getSellPrice() -
+                            discountProduct.getSellPrice() * discountProduct.getPromotionDiscount() / 100);
+                }
+                else {
+                    discountProduct.setDiscountPrice(discountProduct.getSellPrice());
+                    discountProduct.setPromotionDiscount(0);
+                }
+
+                list.add(discountProduct);
             }
-            else {
-                discountProduct.setDiscountPrice(discountProduct.getSellPrice());
-                discountProduct.setPromotionDiscount(0);
-            }
 
-            list.add(discountProduct);
+            return list;
         }
-
-        return list;
+        catch (Exception e){
+            System.out.println(String.format("CategoryController findListProductOfCategory ex: %s" , e.getMessage()));
+            return Collections.emptyList();
+        }
     }
 
     @PostMapping("/categories")
-    @Caching(
-            put= { @CachePut(value= "categories", key= "#category.categoryID") },
-            evict= { @CacheEvict(value= "categories", key="'all'")}
-    )
+//    @Caching(
+//            put= { @CachePut(value= "categories", key= "#category.categoryID") },
+//            evict= { @CacheEvict(value= "categories", key="'all'")}
+//    )
     public ResponseEntity insertCategory(@Valid @RequestBody Category category){
 
         try{
@@ -98,16 +116,16 @@ public class CategoryController {
             return new ResponseEntity(res,HttpStatus.OK);
         }
         catch (Exception e){
-            System.out.println(e.getMessage());
+            System.out.println(String.format("CategoryController insertCategory ex: %s" , e.getMessage()));
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }
 
     @PutMapping("/categories/{id}")
-    @Caching(
-            put= { @CachePut(value= "categories", key= "#id") },
-            evict= { @CacheEvict(value= "categories", key="'all'")}
-    )
+//    @Caching(
+//            put= { @CachePut(value= "categories", key= "#id") },
+//            evict= { @CacheEvict(value= "categories", key="'all'")}
+//    )
     public ResponseEntity updateCategory(@PathVariable(value = "id") Integer id,
                                         @Valid @RequestBody Category category){
         try{
@@ -131,18 +149,18 @@ public class CategoryController {
         //            return new ResponseEntity(new EmptyJsonResponse(),HttpStatus.NOT_FOUND);
         //        }
         catch (Exception e){
-            System.out.println(e.getMessage());
+            System.out.println(String.format("CategoryController updateCategory ex: %s" , e.getMessage()));
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }
 
     @DeleteMapping("/categories/{id}")
-    @Caching(
-            evict= {
-                    @CacheEvict(value="categories",key="#id"),
-                    @CacheEvict(value= "categories", key="'all'")
-            }
-    )
+//    @Caching(
+//            evict= {
+//                    @CacheEvict(value="categories",key="#id"),
+//                    @CacheEvict(value= "categories", key="'all'")
+//            }
+//    )
     public ResponseEntity deleteCategory(@PathVariable(value = "id") Integer id){
 
         try{
@@ -157,7 +175,7 @@ public class CategoryController {
 
         }
         catch (Exception e){
-            System.out.println(e.getMessage());
+            System.out.println(String.format("CategoryController deleteCategory ex: %s" , e.getMessage()));
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }

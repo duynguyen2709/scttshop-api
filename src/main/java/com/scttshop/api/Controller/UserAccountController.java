@@ -34,20 +34,32 @@ public class UserAccountController {
     @Cacheable(value="useraccounts",key="'all'")
     List<UserAccount> getListUserAccount() {
 
-        return repo.findAll();
+        try {
+            return repo.findAll();
+        }
+        catch (Exception e){
+            System.out.println(String.format("UserAccountController findAll ex: %s" , e.getMessage()));
+            return Collections.emptyList();
+        }
     }
 
     @GetMapping("/useraccounts/{username}")
     @Cacheable(value="useraccounts",key="#username")
     ResponseEntity findById(@PathVariable("username") String username) {
-        Optional<UserAccount> userAccount = repo.findById(username);
+        try {
+            Optional<UserAccount> userAccount = repo.findById(username);
 
-        if (userAccount.isPresent()) {
-            return new ResponseEntity(userAccount, HttpStatus.OK);
+            if (userAccount.isPresent()) {
+                return new ResponseEntity(userAccount, HttpStatus.OK);
+            }
+
+            return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.NOT_FOUND);
+
         }
-
-        return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.NOT_FOUND);
-
+        catch (Exception e){
+            System.out.println(String.format("UserAccountController findById ex: %s" , e.getMessage()));
+            return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.BAD_REQUEST);
+        }
     }
 
 
@@ -68,7 +80,7 @@ public class UserAccountController {
             return new ResponseEntity(res,HttpStatus.OK);
         }
         catch (Exception e){
-            System.out.println(e.getMessage());
+            System.out.println(String.format("UserAccountController insertUserAccount ex: %s" , e.getMessage()));
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }
@@ -102,7 +114,7 @@ public class UserAccountController {
 //            return new ResponseEntity(new EmptyJsonResponse(),HttpStatus.NOT_FOUND);
 //        }
         catch (Exception e){
-            System.out.println(e.getMessage());
+            System.out.println(String.format("UserAccountController updateUserAccount ex: %s" , e.getMessage()));
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }
@@ -128,7 +140,7 @@ public class UserAccountController {
 
         }
         catch (Exception e){
-            System.out.println(e.getMessage());
+            System.out.println(String.format("UserAccountController deleteUserAccount ex: %s" , e.getMessage()));
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }

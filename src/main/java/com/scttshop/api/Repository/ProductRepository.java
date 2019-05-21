@@ -12,7 +12,7 @@ import java.util.List;
 @Transactional
 public interface ProductRepository extends JpaRepository<Product,Integer> {
 
-    @Cacheable(value = "products", key = "'category' + #categoryID")
+    //@Cacheable(value = "products", key = "'category' + #categoryID")
     List<Product> findByCategoryID(Integer categoryID);
 }
 

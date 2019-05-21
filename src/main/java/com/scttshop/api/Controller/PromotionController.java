@@ -11,15 +11,11 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.validation.Valid;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -43,69 +39,86 @@ public class PromotionController {
     @Cacheable(value="promotions",key="'all'")
     List<Promotion> getListPromotion() {
 
-        final List<Promotion> all = promotionRepo.findAll();
-        for (Promotion promotion: all){
+        try {
+            final List<Promotion> all = promotionRepo.findAll();
+            for (Promotion promotion : all) {
 
-            switch (promotion.getType()) {
+                switch (promotion.getType()) {
 
-                case "PRODUCT":
-                    try {
-                        String productName = promotionRepo.getAppliedName(promotion.getAppliedID());
-                        promotion.setAppliedName(productName);
-                    }
-                    catch (Exception e){
-                        promotion.setAppliedName("");
+                    case "PRODUCT":
+                        try {
+                            String productName = promotionRepo.getAppliedName(promotion.getAppliedID());
+                            promotion.setAppliedName(productName);
                         }
-                    break;
+                        catch (Exception e) {
+                            promotion.setAppliedName("");
+                        }
+                        break;
 
-                case "CATEGORY":
-                    break;
+                    case "CATEGORY":
+                        break;
+                }
             }
-        }
 
-        return all;
+            return all;
+        }
+        catch (Exception e){
+            System.out.println(String.format("PromotionController findAll ex: %s" , e.getMessage()));
+            return Collections.emptyList();
+        }
     }
 
     @GetMapping("/promotions/{id}")
     @Cacheable(value="promotions",key="#id")
     ResponseEntity findById(@PathVariable("id") Integer id) {
-        Optional<Promotion> promotion = promotionRepo.findById(id);
+        try {
+            Optional<Promotion> promotion = promotionRepo.findById(id);
 
-        if (promotion.isPresent()) {
-            return new ResponseEntity(promotion, HttpStatus.OK);
+            if (promotion.isPresent()) {
+                return new ResponseEntity(promotion, HttpStatus.OK);
+            }
+
+            return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.NOT_FOUND);
+
+        }catch (Exception e){
+            System.out.println(String.format("PromotionController findById ex: %s" , e.getMessage()));
+            return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.BAD_REQUEST);
         }
-
-        return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.NOT_FOUND);
-
     }
 
     @GetMapping("/promotions/products")
     @Cacheable(value="promotions",key="'product'")
     List<DiscountProduct> findListProductOnPromotion() {
 
-        List<Promotion> promotion = promotionRepo.findByTypeAndIsActiveOrderByAppliedID("PRODUCT",1);
+        try {
+            List<Promotion> promotion = promotionRepo.findByTypeAndIsActiveOrderByAppliedID("PRODUCT", 1);
 
-        if (promotion.isEmpty()) {
-            return Collections.EMPTY_LIST;
-        }
-
-        List<DiscountProduct> product = new ArrayList<>();
-
-        for (Promotion promo : promotion) {
-            Optional<Product> prod = prodRepo.findById(promo.getAppliedID());
-
-            if (prod.isPresent()) {
-                DiscountProduct discountProduct = new DiscountProduct(prod.get());
-                discountProduct.setPromotionDiscount(promo.getPromotionDiscount());
-                long newPrice = discountProduct.getSellPrice() -
-                        discountProduct.getPromotionDiscount() * discountProduct.getSellPrice() / 100;
-                discountProduct.setDiscountPrice(newPrice);
-
-                product.add(discountProduct);
+            if (promotion.isEmpty()) {
+                return Collections.EMPTY_LIST;
             }
-        }
 
-        return product;
+            List<DiscountProduct> product = new ArrayList<>();
+
+            for (Promotion promo : promotion) {
+                Optional<Product> prod = prodRepo.findById(promo.getAppliedID());
+
+                if (prod.isPresent()) {
+                    DiscountProduct discountProduct = new DiscountProduct(prod.get());
+                    discountProduct.setPromotionDiscount(promo.getPromotionDiscount());
+                    long newPrice = discountProduct.getSellPrice() -
+                            discountProduct.getPromotionDiscount() * discountProduct.getSellPrice() / 100;
+                    discountProduct.setDiscountPrice(newPrice);
+
+                    product.add(discountProduct);
+                }
+            }
+
+            return product;
+        }
+        catch (Exception e){
+            System.out.println(String.format("PromotionController findListProductOnPromotion ex: %s" , e.getMessage()));
+            return Collections.emptyList();
+        }
     }
 
 
@@ -128,7 +141,7 @@ public class PromotionController {
             return new ResponseEntity(res,HttpStatus.OK);
         }
         catch (Exception e){
-            System.out.println(e.getMessage());
+            System.out.println(String.format("PromotionController insertPromotion ex: %s" , e.getMessage()));
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }
@@ -158,7 +171,7 @@ public class PromotionController {
 
         }
         catch (Exception e){
-            System.out.println(e.getMessage());
+            System.out.println(String.format("PromotionController updatePromotion ex: %s" , e.getMessage()));
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }
@@ -185,7 +198,7 @@ public class PromotionController {
 
         }
         catch (Exception e){
-            System.out.println(e.getMessage());
+            System.out.println(String.format("PromotionController deletePromotion ex: %s" , e.getMessage()));
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }
