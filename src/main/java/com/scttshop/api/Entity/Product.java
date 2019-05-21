@@ -25,6 +25,11 @@ public class Product implements Serializable {
     @Column(name="productName")
     protected String productName;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "categoryID", insertable=false, updatable=false,nullable = false)
+    @JsonIgnore
+    protected Category category;
+
     @Column(name="categoryID")
     protected Integer categoryID;
 
@@ -71,6 +76,5 @@ public class Product implements Serializable {
         this.sellPrice = product.sellPrice;
         this.isActive = product.isActive;
         this.quantity = product.quantity;
-
     }
 }

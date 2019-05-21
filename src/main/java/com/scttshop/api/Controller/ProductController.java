@@ -49,7 +49,7 @@ public class ProductController {
 
             for (Product prod : all) {
                 DiscountProduct discountProduct = new DiscountProduct(prod);
-                discountProduct.setCategoryName(categoryRepository.findById(discountProduct.getCategoryID()).get().getCategoryName());
+                discountProduct.setCategoryName(discountProduct.getCategory().getCategoryName());
                 setPromotion(discountProduct);
 
                 list.add(discountProduct);
@@ -71,8 +71,7 @@ public class ProductController {
 
             if (product.isPresent()) {
                 DiscountProduct discountProduct = new DiscountProduct(product.get());
-                discountProduct.setCategoryName(categoryRepository.findById(discountProduct.getCategoryID()).get().getCategoryName());
-
+                discountProduct.setCategoryName(discountProduct.getCategory().getCategoryName());
                 setPromotion(discountProduct);
 
                 String query = String.format("SELECT * FROM Product p WHERE p.manufacturer = '%s' " +
@@ -102,8 +101,7 @@ public class ProductController {
         for (Product prod: listProduct){
             try {
                 DiscountProduct entity = new DiscountProduct(prod);
-                entity.setCategoryName(categoryRepository.findById(entity.getCategoryID()).get().getCategoryName());
-
+                entity.setCategoryName(entity.getCategory().getCategoryName());
                 setPromotion(entity);
 
                 result.add(entity);

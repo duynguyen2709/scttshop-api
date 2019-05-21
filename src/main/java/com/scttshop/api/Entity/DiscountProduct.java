@@ -31,6 +31,7 @@ public class DiscountProduct extends Product {
             this.quantity = p.quantity;
             this.updDate = p.updDate;
             this.categoryID = p.categoryID;
+            this.category = p.category;
         }
         catch (NullPointerException e) {
         }

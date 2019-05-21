@@ -125,8 +125,7 @@ public class PromotionController {
     @PostMapping("/promotions")
     @Caching(
             put= { @CachePut(value= "promotions", key= "#promotion.promotionID") },
-            evict= { @CacheEvict(value= "promotions", key="'all'"),
-                     @CacheEvict(value= "promotions", key="'product'")}
+            evict= { @CacheEvict(value="promotions",allEntries = true)}
     )
     public ResponseEntity insertPromotion(@Valid @RequestBody Promotion promotion){
 
@@ -149,8 +148,7 @@ public class PromotionController {
     @PutMapping("/promotions/{id}")
     @Caching(
             put= { @CachePut(value= "promotions", key= "#id") },
-            evict= { @CacheEvict(value= "promotions", key="'all'"),
-                     @CacheEvict(value= "promotions", key="'product'")}
+            evict= { @CacheEvict(value="promotions",allEntries = true)}
     )
     public ResponseEntity updatePromotion(@PathVariable(value = "id") Integer id,
                                           @Valid @RequestBody Promotion promotion){
@@ -179,9 +177,7 @@ public class PromotionController {
     @DeleteMapping("/promotions/{id}")
     @Caching(
             evict= {
-                    @CacheEvict(value="promotions",key="#id"),
-                    @CacheEvict(value= "promotions", key="'all'"),
-                    @CacheEvict(value= "promotions", key="'product'")
+                    @CacheEvict(value="promotions",allEntries = true)
             }
     )
     public ResponseEntity deletePromotion(@PathVariable(value = "id") Integer id){

@@ -33,6 +33,11 @@ public class Category implements Serializable {
     @JsonIgnore
     private Timestamp updDate;
 
+    @OneToMany(cascade = CascadeType.ALL,
+               mappedBy = "category", orphanRemoval = true)
+    @JsonIgnore
+    private List<Product> products = new ArrayList<>();
+
     public String getUpdDate(){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return updDate.toLocalDateTime().format(formatter);
