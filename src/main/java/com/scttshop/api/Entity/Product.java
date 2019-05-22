@@ -11,6 +11,8 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -60,6 +62,10 @@ public class Product implements Serializable {
     @Column(name="updDate")
     @JsonIgnore
     protected Timestamp updDate;
+
+    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,
+               mappedBy = "product", orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 
     public String getUpdDate(){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

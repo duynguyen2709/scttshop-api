@@ -1,10 +1,8 @@
 package com.scttshop.api.Controller;
 
-import com.scttshop.api.Entity.DiscountProduct;
-import com.scttshop.api.Entity.EmptyJsonResponse;
-import com.scttshop.api.Entity.Product;
-import com.scttshop.api.Entity.Promotion;
+import com.scttshop.api.Entity.*;
 import com.scttshop.api.Repository.CategoryRepository;
+import com.scttshop.api.Repository.CommentRepository;
 import com.scttshop.api.Repository.ProductRepository;
 import com.scttshop.api.Repository.PromotionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +32,9 @@ public class ProductController {
     private CategoryRepository categoryRepository;
 
     @Autowired
+    private CommentRepository commentRepo;
+
+    @Autowired
     EntityManager em;
 
     @GetMapping("/products")
@@ -59,6 +60,25 @@ public class ProductController {
         }
         catch (Exception e){
             System.out.println(String.format("ProductController findAll ex: %s" , e.getMessage()));
+            return Collections.emptyList();
+        }
+    }
+
+    @GetMapping("/products/{id}/comments")
+    @org.springframework.transaction.annotation.Transactional
+    public List<Comment> getListComment(@PathVariable("id") Integer id){
+
+        try{
+
+            Optional<Product> product = repo.findById(id);
+
+            if (!product.isPresent())
+                return Collections.EMPTY_LIST;
+
+            return product.get().getComments();
+        }
+        catch (Exception e){
+            System.out.println(String.format("ProductController getListComment ex: %s" , e.getMessage()));
             return Collections.emptyList();
         }
     }
