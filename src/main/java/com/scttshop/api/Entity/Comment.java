@@ -24,6 +24,9 @@ public class Comment implements Serializable {
     @Column
     private int productID;
 
+    @Column(nullable = true)
+    private String email;
+
     @Column
     private String customerName;
 

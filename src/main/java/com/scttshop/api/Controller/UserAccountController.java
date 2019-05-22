@@ -80,7 +80,7 @@ public class UserAccountController {
             return new ResponseEntity(res,HttpStatus.OK);
         }
         catch (Exception e){
-            System.out.println(String.format("UserAccountController insertUserAccount ex: %s" , e.getMessage()));
+            System.out.println(String.format("UserAccountController insertCustomer ex: %s" , e.getMessage()));
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }
