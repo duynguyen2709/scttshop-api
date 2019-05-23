@@ -1,8 +1,8 @@
 package com.scttshop.api;
 
 import com.scttshop.api.Cache.CacheFactoryManager;
-import com.scttshop.api.Controller.CustomerController;
-import com.scttshop.api.Entity.Customer;
+import com.scttshop.api.Controller.*;
+import com.scttshop.api.Entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -16,30 +16,75 @@ import java.util.stream.Collectors;
 @EnableCaching
 public class ScttshopApiApplication implements CommandLineRunner {
 
-	@Autowired
-	private CustomerController customerRepo;
+    @Autowired
+    private CustomerController customerController;
 
+    @Autowired
+    private UserAccountController userAccountController;
 
+    @Autowired
+    private ProductController productController;
 
-	public static void main(String[] args) {
+    @Autowired
+    private CategoryController categoryController;
 
-		SpringApplication.run(ScttshopApiApplication.class, args);
+    @Autowired
+    private PromotionController promotionController;
 
-		System.out.println("########## Application started ! ##########");
-	}
+    @Autowired
+    private CommentController commentController;
 
-	@Override
-	public void run(String... args) throws Exception {
+    public static void main(String[] args) {
 
-		Runnable customer = new Runnable() {
-			@Override public void run() {
-				CacheFactoryManager.CUSTOMER_CACHE = new ConcurrentHashMap<>(customerRepo.getListCustomer()
-																			.parallelStream().collect(Collectors.toMap(Customer::getEmail, c->c)));
+        SpringApplication.run(ScttshopApiApplication.class, args);
 
-			}
-		};
+        System.out.println("########## Application started ! ##########");
+    }
 
-		new Thread(customer).start();
+    @Override public void run(String... args) throws Exception {
 
-		}
+        try {
+            //Customer Cache Init
+            new Thread(() -> {
+                CacheFactoryManager.CUSTOMER_CACHE =
+                        new ConcurrentHashMap<>(customerController.getListCustomer().parallelStream().collect(Collectors.toMap(Customer::getEmail, c -> c)));
+            }).start();
+
+            //UserAccount Cache Init
+            new Thread(() -> {
+                CacheFactoryManager.USER_ACCOUNT_CACHE =
+                        new ConcurrentHashMap<>(userAccountController.getListUserAccount().parallelStream().collect(Collectors.toMap(UserAccount::getUsername, c -> c)));
+            }).start();
+
+            //Product Cache Init
+            new Thread(() -> {
+                CacheFactoryManager.PRODUCT_CACHE =
+                        new ConcurrentHashMap<>(productController.getListProduct().parallelStream().collect(Collectors.toMap(Product::getProductID, c -> c)));
+            }).start();
+
+            //Promotion Cache Init
+            new Thread(() -> {
+                CacheFactoryManager.PROMOTION_CACHE =
+                        new ConcurrentHashMap<>(promotionController.getListPromotion().parallelStream().collect(Collectors.toMap(Promotion::getPromotionID, c -> c)));
+
+            }).start();
+
+            //Category Cache Init
+            new Thread(() -> {
+                CacheFactoryManager.CATEGORY_CACHE =
+                        new ConcurrentHashMap<>(categoryController.getListCategories().parallelStream().collect(Collectors.toMap(Category::getCategoryID, c -> c)));
+
+            }).start();
+
+            //Comment Cache Init
+            new Thread(() -> {
+                CacheFactoryManager.COMMENT_CACHE =
+                        new ConcurrentHashMap<>(commentController.getListComment().parallelStream().collect(Collectors.toMap(Comment::getCommentID, c -> c)));
+            }).start();
+        }
+        catch (Exception e) {
+            System.out.println("Init Cache ex: " + e.getMessage());
+        }
+    }
+
 }

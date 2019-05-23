@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.scttshop.api.Cache.CacheFactoryManager.*;
+
 @RestController
 public class PromotionController {
 
@@ -36,10 +38,14 @@ public class PromotionController {
     private EntityManager em;
 
     @GetMapping("/promotions")
-    @Cacheable(value="promotions",key="'all'")
-    List<Promotion> getListPromotion() {
+    //@Cacheable(value="promotions",key="'all'")
+    public List<Promotion> getListPromotion() {
 
         try {
+            if (PROMOTION_CACHE != null){
+                return new ArrayList<>(PROMOTION_CACHE.values());
+            }
+
             final List<Promotion> all = promotionRepo.findAll();
             for (Promotion promotion : all) {
 
@@ -63,19 +69,39 @@ public class PromotionController {
             return all;
         }
         catch (Exception e){
-            System.out.println(String.format("PromotionController findAll ex: %s" , e.getMessage()));
+            System.out.println(String.format("PromotionController getListProduct ex: %s" , e.getMessage()));
             return Collections.emptyList();
         }
     }
 
     @GetMapping("/promotions/{id}")
-    @Cacheable(value="promotions",key="#id")
+    //@Cacheable(value="promotions",key="#id")
     ResponseEntity findById(@PathVariable("id") Integer id) {
         try {
+
+            if (PROMOTION_CACHE!= null && PROMOTION_CACHE.contains(id))
+                return new ResponseEntity(PROMOTION_CACHE.get(id),HttpStatus.OK);
+
             Optional<Promotion> promotion = promotionRepo.findById(id);
 
             if (promotion.isPresent()) {
-                return new ResponseEntity(promotion, HttpStatus.OK);
+                switch (promotion.get().getType()) {
+
+                    case "PRODUCT":
+                        try {
+                            String productName = promotionRepo.getAppliedName(promotion.get().getAppliedID());
+                            promotion.get().setAppliedName(productName);
+                        }
+                        catch (Exception e) {
+                            promotion.get().setAppliedName("");
+                        }
+                        break;
+
+                    case "CATEGORY":
+                        break;
+                }
+                PROMOTION_CACHE.putIfAbsent(id,promotion.get());
+                return new ResponseEntity(promotion.get(), HttpStatus.OK);
             }
 
             return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.NOT_FOUND);
@@ -87,10 +113,28 @@ public class PromotionController {
     }
 
     @GetMapping("/promotions/products")
-    @Cacheable(value="promotions",key="'product'")
+    //@Cacheable(value="promotions",key="'product'")
     List<DiscountProduct> findListProductOnPromotion() {
 
         try {
+            if (PROMOTION_CACHE != null && PRODUCT_CACHE != null){
+                List<Promotion> listPromotionOfProducts = new ArrayList<>(PROMOTION_CACHE.values());
+                listPromotionOfProducts.removeIf(c->(!c.getType().equals("PRODUCT") || c.getIsActive() == 0));
+
+                if (listPromotionOfProducts.isEmpty()) {
+                    return Collections.EMPTY_LIST;
+                }
+
+                List<DiscountProduct> productList = new ArrayList<>();
+
+                for (Promotion promotion : listPromotionOfProducts){
+                    productList.add(PRODUCT_CACHE.get(promotion.getAppliedID()));
+                }
+
+                return productList;
+
+            }
+
             List<Promotion> promotion = promotionRepo.findByTypeAndIsActiveOrderByAppliedID("PRODUCT", 1);
 
             if (promotion.isEmpty()) {
@@ -123,10 +167,10 @@ public class PromotionController {
 
 
     @PostMapping("/promotions")
-    @Caching(
-            put= { @CachePut(value= "promotions", key= "#promotion.promotionID") },
-            evict= { @CacheEvict(value="promotions",allEntries = true)}
-    )
+//    @Caching(
+//            put= { @CachePut(value= "promotions", key= "#promotion.promotionID") },
+//            evict= { @CacheEvict(value="promotions",allEntries = true)}
+//    )
     public ResponseEntity insertPromotion(@Valid @RequestBody Promotion promotion){
 
         try{
@@ -137,6 +181,10 @@ public class PromotionController {
             if (res == null)
                 throw new Exception();
 
+            res.setAppliedName(promotionRepo.getAppliedName(res.getAppliedID()));
+            PROMOTION_CACHE.put(res.getPromotionID(),res);
+
+
             return new ResponseEntity(res,HttpStatus.OK);
         }
         catch (Exception e){
@@ -146,10 +194,10 @@ public class PromotionController {
     }
 
     @PutMapping("/promotions/{id}")
-    @Caching(
-            put= { @CachePut(value= "promotions", key= "#id") },
-            evict= { @CacheEvict(value="promotions",allEntries = true)}
-    )
+//    @Caching(
+//            put= { @CachePut(value= "promotions", key= "#id") },
+//            evict= { @CacheEvict(value="promotions",allEntries = true)}
+//    )
     public ResponseEntity updatePromotion(@PathVariable(value = "id") Integer id,
                                           @Valid @RequestBody Promotion promotion){
         try{
@@ -165,6 +213,9 @@ public class PromotionController {
             if (updatedPromotion == null)
                 throw new Exception();
 
+            updatedPromotion.setAppliedName(promotionRepo.getAppliedName(updatedPromotion.getAppliedID()));
+            PROMOTION_CACHE.replace(id,updatedPromotion);
+
             return new ResponseEntity(updatedPromotion,HttpStatus.OK);
 
         }
@@ -175,11 +226,11 @@ public class PromotionController {
     }
 
     @DeleteMapping("/promotions/{id}")
-    @Caching(
-            evict= {
-                    @CacheEvict(value="promotions",allEntries = true)
-            }
-    )
+//    @Caching(
+//            evict= {
+//                    @CacheEvict(value="promotions",allEntries = true)
+//            }
+//    )
     public ResponseEntity deletePromotion(@PathVariable(value = "id") Integer id){
 
         try{
@@ -189,6 +240,8 @@ public class PromotionController {
                 return ResponseEntity.notFound().build();
 
             promotionRepo.delete(old.get());
+
+            PROMOTION_CACHE.remove(id);
 
             return new ResponseEntity(HttpStatus.OK);
 

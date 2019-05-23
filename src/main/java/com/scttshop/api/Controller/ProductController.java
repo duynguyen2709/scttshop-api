@@ -8,7 +8,6 @@ import com.scttshop.api.Repository.PromotionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
@@ -18,6 +17,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.scttshop.api.Cache.CacheFactoryManager.PRODUCT_CACHE;
 
 @RestController
 public class ProductController {
@@ -35,14 +37,16 @@ public class ProductController {
     private CommentRepository commentRepo;
 
     @Autowired
-    EntityManager em;
+    private EntityManager em;
 
     @GetMapping("/products")
     //@Cacheable(value = "'products'",key="'all'")
-    public List<DiscountProduct> findAll(){
+    public List<DiscountProduct> getListProduct(){
 
         try {
-            //        final List<Product> all = em.createQuery("SELECT p FROM Product p",Product.class).getResultList();
+            if (PRODUCT_CACHE != null){
+                return new ArrayList<>(PRODUCT_CACHE.values());
+            }
 
             List<Product> all = repo.findAll();
 
@@ -59,7 +63,7 @@ public class ProductController {
             return list;
         }
         catch (Exception e){
-            System.out.println(String.format("ProductController findAll ex: %s" , e.getMessage()));
+            System.out.println(String.format("ProductController getListProduct ex: %s" , e.getMessage()));
             return Collections.emptyList();
         }
     }
@@ -87,6 +91,23 @@ public class ProductController {
     //@Cacheable(value = "products",key="#id")
     public ResponseEntity findById(@PathVariable("id") Integer id) {
         try {
+
+            if (PRODUCT_CACHE!= null && PRODUCT_CACHE.contains(id)) {
+                DiscountProduct discountProduct = PRODUCT_CACHE.get(id);
+
+                String query = String.format("SELECT p.productID FROM Product p WHERE p.manufacturer = '%s' " +
+                        "AND p.categoryID = '%s' AND p.productID <> '%s' LIMIT 4", discountProduct.getManufacturer(), discountProduct.getCategoryID(), discountProduct.getProductID());
+
+                List<Integer> listProductID = em.createNativeQuery(query,Integer.class).getResultList();
+
+                List<DiscountProduct> relatedProducts =  listProductID.stream()
+                                                        .map(c -> PRODUCT_CACHE.get(c))
+                                                        .collect(Collectors.toList());
+                discountProduct.setRelatedProducts(relatedProducts);
+
+                return new ResponseEntity(discountProduct,HttpStatus.OK);
+            }
+
             Optional<Product> product = repo.findById(id);
 
             if (product.isPresent()) {
@@ -108,9 +129,9 @@ public class ProductController {
             return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.NOT_FOUND);
         }
         catch (Exception e){
-                System.out.println(String.format("CategoryController findById ex: %s" , e.getMessage()));
-                return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.BAD_REQUEST);
-            }
+            System.out.println(String.format("CategoryController findById ex: %s" , e.getMessage()));
+            return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.BAD_REQUEST);
+        }
 
     }
 
@@ -164,10 +185,10 @@ public class ProductController {
 
 
     @PostMapping("/products")
-//    @Caching(
-//            put= { @CachePut(value= "products", key= "#product.productID") },
-//            evict= { @CacheEvict(value= "products", key="'all'")}
-//    )
+    //    @Caching(
+    //            put= { @CachePut(value= "products", key= "#product.productID") },
+    //            evict= { @CacheEvict(value= "products", key="'all'")}
+    //    )
     public ResponseEntity insertProduct(@Valid @RequestBody Product product){
 
         try{
@@ -187,12 +208,12 @@ public class ProductController {
     }
 
     @PutMapping("/products/{id}")
-//    @Caching(
-//            put= { @CachePut(value= "products", key= "#id") },
-//            evict= { @CacheEvict(value= "products", key="'all'")}
-//    )
+    //    @Caching(
+    //            put= { @CachePut(value= "products", key= "#id") },
+    //            evict= { @CacheEvict(value= "products", key="'all'")}
+    //    )
     public ResponseEntity updateProduct(@PathVariable(value = "id") Integer id,
-                                          @Valid @RequestBody Product product){
+                                        @Valid @RequestBody Product product){
         try{
             Optional<Product> old = repo.findById(id);
 
@@ -220,12 +241,12 @@ public class ProductController {
     }
 
     @DeleteMapping("/products/{id}")
-//    @Caching(
-//            evict= {
-//                    @CacheEvict(value="products",key="#id"),
-//                    @CacheEvict(value= "products", key="'all'")
-//            }
-//    )
+    //    @Caching(
+    //            evict= {
+    //                    @CacheEvict(value="products",key="#id"),
+    //                    @CacheEvict(value= "products", key="'all'")
+    //            }
+    //    )
     public ResponseEntity deleteProduct(@PathVariable(value = "id") Integer id){
 
         try{

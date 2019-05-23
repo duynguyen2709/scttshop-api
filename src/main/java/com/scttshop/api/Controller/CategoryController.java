@@ -21,6 +21,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.scttshop.api.Cache.CacheFactoryManager.CATEGORY_CACHE;
+import static com.scttshop.api.Cache.CacheFactoryManager.PRODUCT_CACHE;
 
 @RestController
 public class CategoryController {
@@ -36,12 +40,16 @@ public class CategoryController {
 
     @GetMapping("/categories")
     //@Cacheable(value="categories",key="'all'")
-    public List<Category> findAll(){
+    public List<Category> getListCategories(){
         try {
+            if (CATEGORY_CACHE != null){
+                return new ArrayList<>(CATEGORY_CACHE.values());
+            }
+
             return repo.findAll();
         }
         catch (Exception e){
-            System.out.println(String.format("CategoryController findAll ex: %s" , e.getMessage()));
+            System.out.println(String.format("CategoryController getListProduct ex: %s" , e.getMessage()));
             return Collections.emptyList();
         }
     }
@@ -50,10 +58,15 @@ public class CategoryController {
     //@Cacheable(value="categories",key="#id")
     ResponseEntity findById(@PathVariable("id") Integer id) {
         try {
+            if (CATEGORY_CACHE!= null && CATEGORY_CACHE.contains(id))
+                return new ResponseEntity(CATEGORY_CACHE.get(id),HttpStatus.OK);
+
             Optional<Category> category = repo.findById(id);
 
-            if (category.isPresent())
-                return new ResponseEntity(category, HttpStatus.OK);
+            if (category.isPresent()) {
+                CATEGORY_CACHE.putIfAbsent(id,category.get());
+                return new ResponseEntity(category.get(), HttpStatus.OK);
+            }
 
             return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.NOT_FOUND);
 
@@ -68,6 +81,14 @@ public class CategoryController {
     //@Cacheable(value="categories",key="'products' + #id")
     List<DiscountProduct> findListProductOfCategory(@PathVariable("id") Integer categoryID) {
         try {
+            if (PRODUCT_CACHE != null){
+                List<DiscountProduct> products = new ArrayList<>(PRODUCT_CACHE.values())
+                                                .stream()
+                                                .filter(p->p.getCategoryID() == categoryID)
+                                                .collect(Collectors.toList());
+                return products;
+            }
+
             final List<Product> all = repo2.findByCategoryID(categoryID);
 
             List<DiscountProduct> list = new ArrayList<>();
@@ -113,6 +134,8 @@ public class CategoryController {
             if (res == null)
                 throw new Exception();
 
+            CATEGORY_CACHE.put(res.getCategoryID(),res);
+
             return new ResponseEntity(res,HttpStatus.OK);
         }
         catch (Exception e){
@@ -136,18 +159,15 @@ public class CategoryController {
 
             old.get().copyFieldValues(category);
             old.get().setUpdDate(new Timestamp(System.currentTimeMillis()));
-            Category updatedProduct = repo.save(old.get());
+            Category updatedCategory = repo.save(old.get());
 
-            if (updatedProduct == null)
+            if (updatedCategory == null)
                 throw new Exception();
 
-            return new ResponseEntity(updatedProduct,HttpStatus.OK);
+            CATEGORY_CACHE.replace(id,updatedCategory);
 
+            return new ResponseEntity(updatedCategory,HttpStatus.OK);
         }
-        //        catch (ChangeSetPersister.NotFoundException e){
-        //            System.out.println(e.getMessage());
-        //            return new ResponseEntity(new EmptyJsonResponse(),HttpStatus.NOT_FOUND);
-        //        }
         catch (Exception e){
             System.out.println(String.format("CategoryController updateCategory ex: %s" , e.getMessage()));
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
@@ -171,6 +191,7 @@ public class CategoryController {
 
             repo.delete(old.get());
 
+            CATEGORY_CACHE.remove(id);
             return new ResponseEntity(HttpStatus.OK);
 
         }

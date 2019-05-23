@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import static com.scttshop.api.Cache.CacheFactoryManager.*;
 
 @RestController
 public class CustomerController {
@@ -34,16 +35,16 @@ public class CustomerController {
     //@Cacheable(value="customers", key="'all'")
     public List<Customer> getListCustomer() {
 
-        if (CacheFactoryManager.CUSTOMER_CACHE != null)
+        if (CUSTOMER_CACHE != null)
         {
-            return new ArrayList<>(CacheFactoryManager.CUSTOMER_CACHE.values());
+            return new ArrayList<>(CUSTOMER_CACHE.values());
         }
 
         try {
             return repo.findAll();
         }
         catch (Exception e){
-            System.out.println(String.format("CustomerController findAll ex: %s" , e.getMessage()));
+            System.out.println(String.format("CustomerController getListProduct ex: %s" , e.getMessage()));
             return Collections.emptyList();
         }
     }
@@ -52,13 +53,15 @@ public class CustomerController {
     //@Cacheable(value="customers",key="#email")
     public ResponseEntity findById(@PathVariable("email") String email) {
         try {
-            if (CacheFactoryManager.CUSTOMER_CACHE.contains(email))
-                return new ResponseEntity(CacheFactoryManager.CUSTOMER_CACHE.get(email),HttpStatus.OK);
+
+            if (CUSTOMER_CACHE!= null && CUSTOMER_CACHE.contains(email))
+                return new ResponseEntity(CUSTOMER_CACHE.get(email),HttpStatus.OK);
 
 
             Optional<Customer> customer = repo.findById(email);
 
             if (customer.isPresent()) {
+                CUSTOMER_CACHE.putIfAbsent(email,customer.get());
                 return new ResponseEntity(customer, HttpStatus.OK);
             }
 
@@ -87,7 +90,7 @@ public class CustomerController {
                 throw new Exception();
 
             // INSERT CACHE
-            CacheFactoryManager.CUSTOMER_CACHE.put(res.getEmail(),res);
+            CUSTOMER_CACHE.put(res.getEmail(),res);
 
             return new ResponseEntity(res,HttpStatus.OK);
         }
@@ -118,7 +121,7 @@ public class CustomerController {
             if (updatedUser == null)
                 throw new Exception();
 
-            CacheFactoryManager.CUSTOMER_CACHE.replace(updatedUser.getEmail(),updatedUser);
+            CUSTOMER_CACHE.replace(updatedUser.getEmail(),updatedUser);
 
             return new ResponseEntity(updatedUser,HttpStatus.OK);
 
@@ -146,7 +149,7 @@ public class CustomerController {
 
             repo.delete(old.get());
 
-            CacheFactoryManager.CUSTOMER_CACHE.remove(old.get().getEmail());
+            CUSTOMER_CACHE.remove(email);
 
             return new ResponseEntity(HttpStatus.OK);
 
