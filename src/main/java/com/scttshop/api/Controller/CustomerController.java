@@ -1,5 +1,6 @@
 package com.scttshop.api.Controller;
 
+import com.scttshop.api.Cache.CacheFactoryManager;
 import com.scttshop.api.Entity.Customer;
 import com.scttshop.api.Entity.EmptyJsonResponse;
 import com.scttshop.api.Repository.CustomerRepository;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.EntityManager;
 import javax.validation.Valid;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -29,8 +31,13 @@ public class CustomerController {
     private EntityManager em;
 
     @GetMapping("/customers")
-    @Cacheable(value="customers", key="'all'")
+    //@Cacheable(value="customers", key="'all'")
     public List<Customer> getListCustomer() {
+
+        if (CacheFactoryManager.CUSTOMER_CACHE != null)
+        {
+            return new ArrayList<>(CacheFactoryManager.CUSTOMER_CACHE.values());
+        }
 
         try {
             return repo.findAll();
@@ -42,9 +49,13 @@ public class CustomerController {
     }
 
     @GetMapping("/customers/{email}")
-    @Cacheable(value="customers",key="#email")
+    //@Cacheable(value="customers",key="#email")
     public ResponseEntity findById(@PathVariable("email") String email) {
         try {
+            if (CacheFactoryManager.CUSTOMER_CACHE.contains(email))
+                return new ResponseEntity(CacheFactoryManager.CUSTOMER_CACHE.get(email),HttpStatus.OK);
+
+
             Optional<Customer> customer = repo.findById(email);
 
             if (customer.isPresent()) {
@@ -62,10 +73,10 @@ public class CustomerController {
 
 
     @PostMapping("/customers")
-    @Caching(
-            put= { @CachePut(value= "customers", key= "#customer.email") },
-            evict= { @CacheEvict(value= "customers", key="'all'")}
-    )
+//    @Caching(
+//            put= { @CachePut(value= "customers", key= "#customer.email") },
+//            evict= { @CacheEvict(value= "customers", key="'all'")}
+//    )
     public ResponseEntity insertCustomer(@Valid @RequestBody Customer customer){
 
         try{
@@ -74,6 +85,9 @@ public class CustomerController {
 
             if (res == null)
                 throw new Exception();
+
+            // INSERT CACHE
+            CacheFactoryManager.CUSTOMER_CACHE.put(res.getEmail(),res);
 
             return new ResponseEntity(res,HttpStatus.OK);
         }
@@ -84,10 +98,10 @@ public class CustomerController {
     }
 
     @PutMapping("/customers/{email}")
-    @Caching(
-            put= { @CachePut(value= "customers", key= "#email") },
-            evict= { @CacheEvict(value= "customers", key="'all'")}
-    )
+//    @Caching(
+//            put= { @CachePut(value= "customers", key= "#email") },
+//            evict= { @CacheEvict(value= "customers", key="'all'")}
+//    )
     public ResponseEntity updateCustomer(@PathVariable(value = "email") String email,
                                             @Valid @RequestBody Customer customer){
         try{
@@ -104,6 +118,8 @@ public class CustomerController {
             if (updatedUser == null)
                 throw new Exception();
 
+            CacheFactoryManager.CUSTOMER_CACHE.replace(updatedUser.getEmail(),updatedUser);
+
             return new ResponseEntity(updatedUser,HttpStatus.OK);
 
         }
@@ -114,12 +130,12 @@ public class CustomerController {
     }
 
     @DeleteMapping("/customers/{email}")
-    @Caching(
-            evict= {
-                    @CacheEvict(value="customers",key="#email"),
-                    @CacheEvict(value= "customers", key="'all'")
-            }
-    )
+//    @Caching(
+//            evict= {
+//                    @CacheEvict(value="customers",key="#email"),
+//                    @CacheEvict(value= "customers", key="'all'")
+//            }
+//    )
     public ResponseEntity deleteCustomer(@PathVariable(value = "email") String email){
 
         try{
@@ -129,6 +145,8 @@ public class CustomerController {
                 return ResponseEntity.notFound().build();
 
             repo.delete(old.get());
+
+            CacheFactoryManager.CUSTOMER_CACHE.remove(old.get().getEmail());
 
             return new ResponseEntity(HttpStatus.OK);
 
