@@ -126,7 +126,7 @@ public class ProductController {
                 return new ResponseEntity(discountProduct, HttpStatus.OK);
             }
 
-            return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
         }
         catch (Exception e){
             System.out.println(String.format("CategoryController findById ex: %s" , e.getMessage()));
@@ -232,7 +232,7 @@ public class ProductController {
         }
         //        catch (ChangeSetPersister.NotFoundException e){
         //            System.out.println(e.getMessage());
-        //            return new ResponseEntity(new EmptyJsonResponse(),HttpStatus.NOT_FOUND);
+        //            return new ResponseEntity(new EmptyJsonResponse(),HttpStatus.OK);
         //        }
         catch (Exception e){
             System.out.println(String.format("CategoryController updateProduct ex: %s" , e.getMessage()));

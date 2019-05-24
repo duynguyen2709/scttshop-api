@@ -68,7 +68,7 @@ public class CategoryController {
                 return new ResponseEntity(category.get(), HttpStatus.OK);
             }
 
-            return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
 
         }
         catch (Exception e){

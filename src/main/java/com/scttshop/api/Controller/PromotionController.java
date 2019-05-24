@@ -104,7 +104,7 @@ public class PromotionController {
                 return new ResponseEntity(promotion.get(), HttpStatus.OK);
             }
 
-            return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
 
         }catch (Exception e){
             System.out.println(String.format("PromotionController findById ex: %s" , e.getMessage()));

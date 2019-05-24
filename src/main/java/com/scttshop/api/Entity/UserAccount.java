@@ -22,7 +22,7 @@ public class UserAccount implements Serializable {
     private String username;
 
     @Column
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    //@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @Column
