@@ -154,4 +154,26 @@ public class UserAccountController {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }
+
+    @PostMapping("/useraccounts/{username}/logon")
+    public ResponseEntity loginSucceed(@PathVariable(value="username") String username){
+        try{
+            USER_ACCOUNT_CACHE.get(username).setLastLoginTime(new Timestamp(System.currentTimeMillis()));
+
+            Optional<UserAccount> old = repo.findById(username);
+
+            if (old.isPresent())
+            {
+                old.get().setUpdDate(new Timestamp(System.currentTimeMillis()));
+                repo.save(old.get());
+            }
+
+            return new ResponseEntity(USER_ACCOUNT_CACHE.get(username),HttpStatus.OK);
+
+        }
+        catch (Exception e){
+            System.out.println(String.format("UserAccountController loginSucceed ex: %s" , e.getMessage()));
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+    }
 }

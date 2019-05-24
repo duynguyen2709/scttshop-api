@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.format.DateTimeFormatter;
 
@@ -32,6 +33,16 @@ public class UserAccount implements Serializable {
     private String fullName;
 
     @Column
+    private String avatar;
+
+    @Column
+    private String email;
+
+    @Column
+    //@JsonFormat(pattern="dd-MM-yyyy")
+    private Date birthdate;
+
+    @Column
     private String address;
 
     @Column
@@ -44,6 +55,11 @@ public class UserAccount implements Serializable {
     @Column
     @JsonIgnore
     private Timestamp updDate;
+
+    public String getBirthDate(){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        return birthdate.toLocalDate().format(formatter);
+    }
 
     public String getUpdDate(){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -64,6 +80,9 @@ public class UserAccount implements Serializable {
         this.fullName = user.fullName;
         this.address = user.address;
         this.phoneNumber = user.phoneNumber;
-        this.lastLoginTime = user.lastLoginTime;
+        //this.lastLoginTime = user.lastLoginTime;
+        this.birthdate = user.birthdate;
+        this.avatar = user.avatar;
+        this.email = user.email;
     }
 }

@@ -25,6 +25,9 @@ public class Customer implements Serializable {
     private String fullName;
 
     @Column
+    private String avatar;
+
+    @Column
     private String address;
 
     @Column
@@ -50,6 +53,7 @@ public class Customer implements Serializable {
     public void copyFieldValues(Customer customer) {
         this.email = customer.email;
         this.fullName = customer.fullName;
+        this.avatar = customer.avatar;
         this.address = customer.address;
         this.phoneNumber = customer.phoneNumber;
         this.totalBuy = customer.totalBuy;
