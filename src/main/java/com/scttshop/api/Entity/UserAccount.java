@@ -10,6 +10,8 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 
 @Data
@@ -80,6 +82,15 @@ public class UserAccount implements Serializable {
         }
         catch (Exception e){
             return "";
+        }
+    }
+
+    public void setBirthDate(String birthDate){
+        try {
+            this.birthDate = new java.sql.Date((new SimpleDateFormat("dd-MM-yyyy").parse(birthDate)).getTime());;
+        }
+        catch (ParseException e) {
+            this.birthDate = null;
         }
     }
 
