@@ -133,6 +133,37 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
         }
     }
 
+    @PutMapping("/customers/{email}/verify")
+    //    @Caching(
+    //            put= { @CachePut(value= "customers", key= "#email") },
+    //            evict= { @CacheEvict(value= "customers", key="'all'")}
+    //    )
+    public ResponseEntity verifyCustomer(@PathVariable(value = "email") String email) {
+        try {
+            CUSTOMER_CACHE.get(email).setVerified(true);
+
+            Optional<Customer> old = repo.findById(email);
+
+            if (old.isPresent()) {
+                old.get().setUpdDate(new Timestamp(System.currentTimeMillis()));
+                old.get().setVerified(true);
+
+                Customer updatedUser = repo.save(old.get());
+
+                if (updatedUser == null) {
+                    throw new Exception();
+                }
+            }
+
+            return new ResponseEntity(CUSTOMER_CACHE.get(email), HttpStatus.OK);
+
+        }
+        catch (Exception e) {
+            System.out.println(String.format("CustomerController verifyCustomer ex: %s", e.getMessage()));
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @DeleteMapping("/customers/{email}")
     //    @Caching(
     //            evict= {

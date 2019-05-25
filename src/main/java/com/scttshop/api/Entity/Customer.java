@@ -37,6 +37,9 @@ public class Customer implements Serializable {
     private long totalBuy = 0;
 
     @Column
+    private boolean isVerified = false;
+
+    @Column
     @JsonIgnore
     private Timestamp updDate;
 
@@ -56,6 +59,7 @@ public class Customer implements Serializable {
         this.avatar = customer.avatar;
         this.address = customer.address;
         this.phoneNumber = customer.phoneNumber;
+        this.isVerified = customer.isVerified;
         this.totalBuy = customer.totalBuy;
     }
 }
