@@ -144,7 +144,6 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
     //    )
     public ResponseEntity verifyCustomer(@PathVariable(value = "email") String email) {
         try {
-            CUSTOMER_CACHE.get(email).setVerified(true);
 
             Optional<Customer> old = repo.findById(email);
 
@@ -157,6 +156,8 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
                 if (updatedUser == null) {
                     throw new Exception();
                 }
+
+                CUSTOMER_CACHE.replace(email,updatedUser);
             }
 
             return new ResponseEntity(CUSTOMER_CACHE.get(email), HttpStatus.OK);

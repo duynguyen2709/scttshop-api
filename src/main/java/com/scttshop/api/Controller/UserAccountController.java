@@ -162,15 +162,18 @@ public class UserAccountController {
     @PostMapping("/useraccounts/{username}/logon")
     public ResponseEntity loginSucceed(@PathVariable(value="username") String username){
         try{
-            USER_ACCOUNT_CACHE.get(username).setLastLoginTime(new Timestamp(System.currentTimeMillis()));
-
             Optional<UserAccount> old = repo.findById(username);
 
-            if (old.isPresent())
+            if (!old.isPresent())
             {
-                old.get().setUpdDate(new Timestamp(System.currentTimeMillis()));
-                repo.save(old.get());
+                return ResponseEntity.notFound().build();
             }
+
+            old.get().setUpdDate(new Timestamp(System.currentTimeMillis()));
+            old.get().setLastLoginTime(new Timestamp(System.currentTimeMillis()));
+            UserAccount updatedUser = repo.save(old.get());
+
+            USER_ACCOUNT_CACHE.replace(username,updatedUser);
 
             return new ResponseEntity(USER_ACCOUNT_CACHE.get(username),HttpStatus.OK);
 
