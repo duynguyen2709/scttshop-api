@@ -2,7 +2,6 @@ package com.scttshop.api.Entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -40,7 +39,7 @@ public class UserAccount implements Serializable {
 
     @Column
     //@JsonFormat(pattern="dd-MM-yyyy")
-    private Date birthdate;
+    private Date birthDate;
 
     @Column
     private String address;
@@ -58,7 +57,7 @@ public class UserAccount implements Serializable {
 
     public String getBirthDate(){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        return birthdate.toLocalDate().format(formatter);
+        return birthDate.toLocalDate().format(formatter);
     }
 
     public String getUpdDate(){
@@ -81,7 +80,7 @@ public class UserAccount implements Serializable {
         this.address = user.address;
         this.phoneNumber = user.phoneNumber;
         //this.lastLoginTime = user.lastLoginTime;
-        this.birthdate = user.birthdate;
+        this.birthDate = user.birthDate;
         this.avatar = user.avatar;
         this.email = user.email;
     }
