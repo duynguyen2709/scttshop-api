@@ -56,8 +56,13 @@ public class UserAccount implements Serializable {
     private Timestamp updDate;
 
     public String getBirthDate(){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        return birthDate.toLocalDate().format(formatter);
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            return birthDate.toLocalDate().format(formatter);
+        }
+        catch (Exception e) {
+            return "";
+        }
     }
 
     public String getUpdDate(){
@@ -66,11 +71,16 @@ public class UserAccount implements Serializable {
     }
 
     public String getLastLoginTime(){
-        if (lastLoginTime == null || String.valueOf(lastLoginTime).isEmpty())
-            return "";
+        try {
+            if (lastLoginTime == null || String.valueOf(lastLoginTime).isEmpty())
+                return "";
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return lastLoginTime.toLocalDateTime().format(formatter);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            return lastLoginTime.toLocalDateTime().format(formatter);
+        }
+        catch (Exception e){
+            return "";
+        }
     }
 
     public void copyFieldValues(UserAccount user) {
