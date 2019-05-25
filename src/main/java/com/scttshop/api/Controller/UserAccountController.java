@@ -78,6 +78,10 @@ public class UserAccountController {
     public ResponseEntity insertUserAccount(@Valid @RequestBody UserAccount userAccount){
 
         try{
+            if (USER_ACCOUNT_CACHE.contains(userAccount.getUsername()) || repo.findById(userAccount.getUsername()).isPresent()){
+                return new ResponseEntity("Username Already Existed.",HttpStatus.OK);
+            }
+
             userAccount.setUpdDate(new Timestamp(System.currentTimeMillis()));
             UserAccount res = repo.save(userAccount);
 

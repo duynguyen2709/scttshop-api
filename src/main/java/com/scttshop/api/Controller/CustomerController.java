@@ -81,6 +81,10 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
     public ResponseEntity insertCustomer(@Valid @RequestBody Customer customer) {
 
         try {
+            if (CUSTOMER_CACHE.contains(customer.getEmail()) || repo.findById(customer.getEmail()).isPresent()){
+                return new ResponseEntity("Email Already Existed.",HttpStatus.OK);
+            }
+
             customer.setUpdDate(new Timestamp(System.currentTimeMillis()));
             Customer res = repo.save(customer);
 
