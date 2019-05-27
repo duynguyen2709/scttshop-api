@@ -5,12 +5,19 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
+//@RunWith(SpringRunner.class)
+//@SpringBootTest
 public class ScttshopApiApplicationTests {
 
 	@Test
 	public void contextLoads() {
+		LocalDate today = LocalDate.now();
+		String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyMMdd"));
+
+		assert (date.equals("190527"));
 	}
 
 }

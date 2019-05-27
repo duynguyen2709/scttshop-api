@@ -1,5 +1,7 @@
 package com.scttshop.api;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.scttshop.api.Cache.CacheFactoryManager;
 import com.scttshop.api.Controller.*;
 import com.scttshop.api.Entity.*;
@@ -9,6 +11,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -33,6 +38,9 @@ public class ScttshopApiApplication implements CommandLineRunner {
 
     @Autowired
     private CommentController commentController;
+
+    @Autowired
+    private OrderController orderController;
 
     public static void main(String[] args) {
 
@@ -80,6 +88,27 @@ public class ScttshopApiApplication implements CommandLineRunner {
             new Thread(() -> {
                 CacheFactoryManager.COMMENT_CACHE =
                         new ConcurrentHashMap<>(commentController.getListComment().parallelStream().collect(Collectors.toMap(Comment::getCommentID, c -> c)));
+            }).start();
+
+            //OrderLog Cache Init
+            new Thread(() -> {
+                CacheFactoryManager.ORDER_LOG_CACHE =
+                        new ConcurrentHashMap<>(orderController.findAll().parallelStream().collect(Collectors.toMap(Order::getOrderID, c -> c)));
+
+//                String json = CacheFactoryManager.ORDER_LOG_CACHE.get("1905270001").getOrderDetail();
+//
+//                ObjectMapper mapper = new ObjectMapper();
+//                TypeReference<HashMap<Integer, Integer>> typeRef
+//                        = new TypeReference<HashMap<Integer,Integer>>() {};
+//
+//                try {
+//                    Map<String, String> map = mapper.readValue(json, typeRef);
+//                    System.out.println(map);
+//                }
+//                catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+
             }).start();
         }
         catch (Exception e) {

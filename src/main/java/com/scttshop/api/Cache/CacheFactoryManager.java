@@ -15,5 +15,6 @@ public class CacheFactoryManager {
     public static ConcurrentHashMap<Integer, Category>   CATEGORY_CACHE     = null;
     public static ConcurrentHashMap<Integer, DiscountProduct>    PRODUCT_CACHE      = null;
     public static ConcurrentHashMap<Integer, Promotion>  PROMOTION_CACHE    = null;
+    public static ConcurrentHashMap<String, Order>  ORDER_LOG_CACHE    = null;
 
 }
