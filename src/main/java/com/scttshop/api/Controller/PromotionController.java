@@ -75,11 +75,10 @@ public class PromotionController {
     }
 
     @GetMapping("/promotions/{id}")
-    //@Cacheable(value="promotions",key="#id")
     ResponseEntity findById(@PathVariable("id") Integer id) {
         try {
 
-            if (PROMOTION_CACHE!= null && PROMOTION_CACHE.contains(id))
+            if (PROMOTION_CACHE!= null)
                 return new ResponseEntity(PROMOTION_CACHE.get(id),HttpStatus.OK);
 
             Optional<Promotion> promotion = promotionRepo.findById(id);
@@ -113,7 +112,6 @@ public class PromotionController {
     }
 
     @GetMapping("/promotions/products")
-    //@Cacheable(value="promotions",key="'product'")
     List<DiscountProduct> findListProductOnPromotion() {
 
         try {
@@ -167,10 +165,6 @@ public class PromotionController {
 
 
     @PostMapping("/promotions")
-//    @Caching(
-//            put= { @CachePut(value= "promotions", key= "#promotion.promotionID") },
-//            evict= { @CacheEvict(value="promotions",allEntries = true)}
-//    )
     public ResponseEntity insertPromotion(@Valid @RequestBody Promotion promotion){
 
         try{
@@ -194,10 +188,6 @@ public class PromotionController {
     }
 
     @PutMapping("/promotions/{id}")
-//    @Caching(
-//            put= { @CachePut(value= "promotions", key= "#id") },
-//            evict= { @CacheEvict(value="promotions",allEntries = true)}
-//    )
     public ResponseEntity updatePromotion(@PathVariable(value = "id") Integer id,
                                           @Valid @RequestBody Promotion promotion){
         try{
@@ -226,11 +216,6 @@ public class PromotionController {
     }
 
     @DeleteMapping("/promotions/{id}")
-//    @Caching(
-//            evict= {
-//                    @CacheEvict(value="promotions",allEntries = true)
-//            }
-//    )
     public ResponseEntity deletePromotion(@PathVariable(value = "id") Integer id){
 
         try{

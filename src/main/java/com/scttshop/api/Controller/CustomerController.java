@@ -53,7 +53,7 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
     public ResponseEntity findById(@PathVariable("email") String email) {
         try {
 
-            if (CUSTOMER_CACHE != null && CUSTOMER_CACHE.contains(email)) {
+            if (CUSTOMER_CACHE != null) {
                 return new ResponseEntity(CUSTOMER_CACHE.get(email), HttpStatus.OK);
             }
 
@@ -74,14 +74,11 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
     }
 
     @PostMapping("/customers")
-    //    @Caching(
-    //            put= { @CachePut(value= "customers", key= "#customer.email") },
-    //            evict= { @CacheEvict(value= "customers", key="'all'")}
-    //    )
     public ResponseEntity insertCustomer(@Valid @RequestBody Customer customer) {
 
         try {
-            if (CUSTOMER_CACHE.contains(customer.getEmail()) || repo.findById(customer.getEmail()).isPresent()){
+            if (CUSTOMER_CACHE.contains(customer.getEmail()) || CUSTOMER_CACHE.get(customer.getEmail()) != null
+                    || repo.findById(customer.getEmail()).isPresent()){
                 return new ResponseEntity("Email Already Existed.",HttpStatus.OK);
             }
 
@@ -104,10 +101,6 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
     }
 
     @PutMapping("/customers/{email}")
-    //    @Caching(
-    //            put= { @CachePut(value= "customers", key= "#email") },
-    //            evict= { @CacheEvict(value= "customers", key="'all'")}
-    //    )
     public ResponseEntity updateCustomer(@PathVariable(value = "email") String email,
                                          @Valid @RequestBody Customer customer) {
         try {
@@ -138,10 +131,6 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
     }
 
     @PutMapping("/customers/{email}/verify")
-    //    @Caching(
-    //            put= { @CachePut(value= "customers", key= "#email") },
-    //            evict= { @CacheEvict(value= "customers", key="'all'")}
-    //    )
     public ResponseEntity verifyCustomer(@PathVariable(value = "email") String email) {
         try {
 
@@ -170,12 +159,6 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
     }
 
     @DeleteMapping("/customers/{email}")
-    //    @Caching(
-    //            evict= {
-    //                    @CacheEvict(value="customers",key="#email"),
-    //                    @CacheEvict(value= "customers", key="'all'")
-    //            }
-    //    )
     public ResponseEntity deleteCustomer(@PathVariable(value = "email") String email) {
 
         try {

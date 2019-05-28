@@ -50,7 +50,7 @@ public class OrderController {
     public ResponseEntity findById(@PathVariable("orderID") String orderID) {
         try {
 
-            if (ORDER_LOG_CACHE!= null && ORDER_LOG_CACHE.contains(orderID))
+            if (ORDER_LOG_CACHE!= null)
                 return new ResponseEntity(ORDER_LOG_CACHE.get(orderID),HttpStatus.OK);
 
             Optional<Order> order = repo.findById(orderID);

@@ -71,7 +71,7 @@ public class ProductController {
     public ResponseEntity findById(@PathVariable("id") Integer id) {
         try {
 
-            if (PRODUCT_CACHE!= null && PRODUCT_CACHE.contains(id)) {
+            if (PRODUCT_CACHE != null) {
                 DiscountProduct discountProduct = PRODUCT_CACHE.get(id);
 
                 String query = String.format("SELECT p.productID FROM Product p WHERE p.manufacturer = '%s' " +
@@ -85,6 +85,8 @@ public class ProductController {
                 discountProduct.setRelatedProducts(relatedProducts);
                 discountProduct.setSummary(PRODUCT_CACHE.get(id).getSummary());
                 discountProduct.setComments(PRODUCT_CACHE.get(id).getComments());
+
+                System.out.println("get product from cache");
                 return new ResponseEntity(discountProduct,HttpStatus.OK);
             }
 
@@ -103,6 +105,7 @@ public class ProductController {
 
                 discountProduct.setRelatedProducts(list);
 
+                System.out.println("get product from db");
                 return new ResponseEntity(discountProduct, HttpStatus.OK);
             }
 
@@ -234,22 +237,20 @@ public class ProductController {
     public ResponseEntity increaseView(@PathVariable Integer productID){
 
         try{
-            if (PRODUCT_CACHE != null && PRODUCT_CACHE.contains(productID)){
-                DiscountProduct prod = PRODUCT_CACHE.get(productID);
-                prod.getSummary().setViewCount(prod.getSummary().getViewCount() + 1);
-                return new ResponseEntity(PRODUCT_CACHE.get(productID),HttpStatus.OK);
-            }
-
             Optional<Product> byId = repo.findById(productID);
 
             if (byId.isPresent())
             {
-                DiscountProduct prod = new DiscountProduct(byId.get());
-                prod.getSummary().setViewCount(prod.getSummary().getViewCount() + 1);
-                return new ResponseEntity(prod,HttpStatus.OK);
-            }
+                byId.get().getSummary().setViewCount(byId.get().getSummary().getViewCount() + 1);
+                Product save = repo.save(byId.get());
 
-            return new ResponseEntity(new EmptyJsonResponse(),HttpStatus.OK);
+                if (save == null)
+                    throw new Exception();
+
+
+                PRODUCT_CACHE.get(productID).getSummary().setViewCount(save.getSummary().getViewCount());
+            }
+            return new ResponseEntity(PRODUCT_CACHE.get(productID),HttpStatus.OK);
         }
         catch (Exception e){
             System.out.println(String.format("ProductController increaseView ex: %s" , e.getMessage()));

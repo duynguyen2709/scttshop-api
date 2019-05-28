@@ -58,7 +58,7 @@ public class CategoryController {
     //@Cacheable(value="categories",key="#id")
     ResponseEntity findById(@PathVariable("id") Integer id) {
         try {
-            if (CATEGORY_CACHE!= null && CATEGORY_CACHE.contains(id))
+            if (CATEGORY_CACHE!= null)
                 return new ResponseEntity(CATEGORY_CACHE.get(id),HttpStatus.OK);
 
             Optional<Category> category = repo.findById(id);
@@ -78,7 +78,6 @@ public class CategoryController {
     }
 
     @GetMapping("/categories/{id}/products")
-    //@Cacheable(value="categories",key="'products' + #id")
     List<DiscountProduct> findListProductOfCategory(@PathVariable("id") Integer categoryID) {
         try {
             if (PRODUCT_CACHE != null){
@@ -120,10 +119,6 @@ public class CategoryController {
     }
 
     @PostMapping("/categories")
-//    @Caching(
-//            put= { @CachePut(value= "categories", key= "#category.categoryID") },
-//            evict= { @CacheEvict(value= "categories", key="'all'")}
-//    )
     public ResponseEntity insertCategory(@Valid @RequestBody Category category){
 
         try{
@@ -145,10 +140,6 @@ public class CategoryController {
     }
 
     @PutMapping("/categories/{id}")
-//    @Caching(
-//            put= { @CachePut(value= "categories", key= "#id") },
-//            evict= { @CacheEvict(value= "categories", key="'all'")}
-//    )
     public ResponseEntity updateCategory(@PathVariable(value = "id") Integer id,
                                         @Valid @RequestBody Category category){
         try{
@@ -175,12 +166,6 @@ public class CategoryController {
     }
 
     @DeleteMapping("/categories/{id}")
-//    @Caching(
-//            evict= {
-//                    @CacheEvict(value="categories",key="#id"),
-//                    @CacheEvict(value= "categories", key="'all'")
-//            }
-//    )
     public ResponseEntity deleteCategory(@PathVariable(value = "id") Integer id){
 
         try{

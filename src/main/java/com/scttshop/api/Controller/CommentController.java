@@ -25,9 +25,7 @@ public class CommentController {
     @Autowired
     private CommentRepository repo;
 
-
     @GetMapping("/comments")
-    //@Cacheable(value="comments",key="'all'")
     public List<Comment> getListComment() {
 
         try {
@@ -45,11 +43,10 @@ public class CommentController {
     }
 
     @GetMapping("/comments/{commentID}")
-    //@Cacheable(value="comments",key="#username")
     ResponseEntity findById(@PathVariable("commentID") Integer commentID) {
         try {
 
-            if (COMMENT_CACHE!= null && COMMENT_CACHE.contains(commentID))
+            if (COMMENT_CACHE!= null)
                 return new ResponseEntity(COMMENT_CACHE.get(commentID),HttpStatus.OK);
 
             Optional<Comment> comment = repo.findById(commentID);
@@ -70,10 +67,6 @@ public class CommentController {
 
 
     @PostMapping("/comments")
-//    @Caching(
-//            put= { @CachePut(value= "comments", key= "#userAccount.username") },
-//            evict= { @CacheEvict(value= "comments", key="'all'")}
-//    )
     public ResponseEntity insertComment(@Valid @RequestBody Comment comment){
 
         try{
@@ -98,10 +91,6 @@ public class CommentController {
     }
 
     @PutMapping("/comments/{commentID}")
-//    @Caching(
-//            put= { @CachePut(value= "comments", key= "#username") },
-//            evict= { @CacheEvict(value= "comments", key="'all'")}
-//    )
     public ResponseEntity updateComment(@PathVariable(value = "commentID") Integer commentID,
                                           @Valid @RequestBody Comment comment){
         try{
@@ -130,12 +119,6 @@ public class CommentController {
     }
 
     @DeleteMapping("/comments/{commentID}")
-//    @Caching(
-//            evict= {
-//                    @CacheEvict(value="comments",key="#username"),
-//                    @CacheEvict(value= "comments", key="'all'")
-//            }
-//    )
     public ResponseEntity deleteComment(@PathVariable(value = "commentID") Integer commentID){
 
         try{

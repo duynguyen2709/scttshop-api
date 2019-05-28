@@ -28,7 +28,7 @@ public class Product implements Serializable {
     protected String productName;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "categoryID", insertable=false, updatable=false,nullable = false)
+    @JoinColumn(name = "categoryID", insertable=false, updatable=false, nullable = false)
     @JsonIgnore
     protected Category category;
 
@@ -67,7 +67,7 @@ public class Product implements Serializable {
     @JsonIgnore
     protected Timestamp updDate;
 
-    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,
+    @OneToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL,
                mappedBy = "product", orphanRemoval = true)
     protected List<Comment> comments = new ArrayList<>();
 

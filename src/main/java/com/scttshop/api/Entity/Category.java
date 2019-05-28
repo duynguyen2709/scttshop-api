@@ -38,6 +38,10 @@ public class Category implements Serializable {
     @JsonIgnore
     private List<Product> products = new ArrayList<>();
 
+    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY,
+               mappedBy = "category", orphanRemoval = true)
+    private List<SubCategory> subCategories = new ArrayList<>();
+
     public String getUpdDate(){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return updDate.toLocalDateTime().format(formatter);

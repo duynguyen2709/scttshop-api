@@ -1,10 +1,14 @@
 package com.scttshop.api.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import java.util.List;
 
 @Data
@@ -17,6 +21,7 @@ public class DiscountProduct extends Product {
     private long discountPrice;
 
     private List<DiscountProduct> relatedProducts;
+
 
     public DiscountProduct(Product p) {
         try {

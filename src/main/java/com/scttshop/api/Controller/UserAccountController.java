@@ -28,7 +28,6 @@ public class UserAccountController {
     private EntityManager em;
 
     @GetMapping("/useraccounts")
-    //@Cacheable(value="useraccounts",key="'all'")
     public List<UserAccount> getListUserAccount() {
 
         try {
@@ -46,11 +45,10 @@ public class UserAccountController {
     }
 
     @GetMapping("/useraccounts/{username}")
-    //@Cacheable(value="useraccounts",key="#username")
     ResponseEntity findById(@PathVariable("username") String username) {
         try {
 
-            if (USER_ACCOUNT_CACHE!= null && USER_ACCOUNT_CACHE.contains(username))
+            if (USER_ACCOUNT_CACHE!= null)
                 return new ResponseEntity(USER_ACCOUNT_CACHE.get(username),HttpStatus.OK);
 
             Optional<UserAccount> userAccount = repo.findById(username);
@@ -71,14 +69,12 @@ public class UserAccountController {
 
 
     @PostMapping("/useraccounts")
-//    @Caching(
-//            put= { @CachePut(value= "useraccounts", key= "#userAccount.username") },
-//            evict= { @CacheEvict(value= "useraccounts", key="'all'")}
-//    )
     public ResponseEntity insertUserAccount(@Valid @RequestBody UserAccount userAccount){
 
         try{
-            if (USER_ACCOUNT_CACHE.contains(userAccount.getUsername()) || repo.findById(userAccount.getUsername()).isPresent()){
+            if (USER_ACCOUNT_CACHE.contains(userAccount.getUsername())
+                    || USER_ACCOUNT_CACHE.get(userAccount.getUsername()) != null
+                    || repo.findById(userAccount.getUsername()).isPresent()){
                 return new ResponseEntity("Username Already Existed.",HttpStatus.OK);
             }
 
@@ -100,10 +96,6 @@ public class UserAccountController {
     }
 
     @PutMapping("/useraccounts/{username}")
-//    @Caching(
-//            put= { @CachePut(value= "useraccounts", key= "#username") },
-//            evict= { @CacheEvict(value= "useraccounts", key="'all'")}
-//    )
     public ResponseEntity updateUserAccount(@PathVariable(value = "username") String username,
                                           @Valid @RequestBody UserAccount userAccount){
         try{
@@ -132,12 +124,6 @@ public class UserAccountController {
     }
 
     @DeleteMapping("/useraccounts/{username}")
-//    @Caching(
-//            evict= {
-//                    @CacheEvict(value="useraccounts",key="#username"),
-//                    @CacheEvict(value= "useraccounts", key="'all'")
-//            }
-//    )
     public ResponseEntity deleteUserAccount(@PathVariable(value = "username") String username){
 
         try{
