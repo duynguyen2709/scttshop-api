@@ -77,7 +77,7 @@ public class ProductController {
                 String query = String.format("SELECT p.productID FROM Product p WHERE p.manufacturer = '%s' " +
                         "AND p.categoryID = '%s' AND p.productID <> '%s' LIMIT 4", discountProduct.getManufacturer(), discountProduct.getCategoryID(), discountProduct.getProductID());
 
-                List<Integer> listProductID = em.createNativeQuery(query,Integer.class).getResultList();
+                List<Integer> listProductID = em.createNativeQuery(query).getResultList();
 
                 List<DiscountProduct> relatedProducts =  listProductID.stream()
                                                         .map(c -> PRODUCT_CACHE.get(c))
@@ -86,7 +86,6 @@ public class ProductController {
                 discountProduct.setSummary(PRODUCT_CACHE.get(id).getSummary());
                 discountProduct.setComments(PRODUCT_CACHE.get(id).getComments());
 
-                System.out.println("get product from cache");
                 return new ResponseEntity(discountProduct,HttpStatus.OK);
             }
 
@@ -105,14 +104,13 @@ public class ProductController {
 
                 discountProduct.setRelatedProducts(list);
 
-                System.out.println("get product from db");
                 return new ResponseEntity(discountProduct, HttpStatus.OK);
             }
 
             return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
         }
         catch (Exception e){
-            System.out.println(String.format("CategoryController findById ex: %s" , e.getMessage()));
+            System.out.println(String.format("ProductController findById ex: %s" , e.getMessage()));
             return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.BAD_REQUEST);
         }
 
@@ -131,7 +129,7 @@ public class ProductController {
                 result.add(entity);
             }
             catch (Exception e){
-                System.out.println(String.format("CategoryController convertListProduct ex: %s" , e.getMessage()));
+                System.out.println(String.format("ProductController convertListProduct ex: %s" , e.getMessage()));
             }
         }
 
@@ -160,7 +158,7 @@ public class ProductController {
             return promo;
         }
         catch (Exception e){
-            System.out.println(String.format("CategoryController isOnPromotion ex: %s" , e.getMessage()));
+            System.out.println(String.format("ProductController isOnPromotion ex: %s" , e.getMessage()));
             return null;
         }
     }
@@ -181,7 +179,7 @@ public class ProductController {
             return new ResponseEntity(res,HttpStatus.OK);
         }
         catch (Exception e){
-            System.out.println(String.format("CategoryController insertProduct ex: %s" , e.getMessage()));
+            System.out.println(String.format("ProductController insertProduct ex: %s" , e.getMessage()));
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }
@@ -207,7 +205,7 @@ public class ProductController {
 
         }
         catch (Exception e){
-            System.out.println(String.format("CategoryController updateProduct ex: %s" , e.getMessage()));
+            System.out.println(String.format("ProductController updateProduct ex: %s" , e.getMessage()));
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }
