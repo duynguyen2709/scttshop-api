@@ -22,6 +22,7 @@ public class Comment implements Serializable {
     private int commentID;
 
     @Column
+    @JsonIgnore
     private int productID;
 
     @Column(nullable = true)

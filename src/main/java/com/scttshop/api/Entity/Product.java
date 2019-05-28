@@ -32,6 +32,10 @@ public class Product implements Serializable {
     @JsonIgnore
     protected Category category;
 
+    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @JoinColumn(name="productID", insertable=false, updatable=false,nullable = false)
+    protected ProductSummary summary;
+
     @Column(name="categoryID")
     protected Integer categoryID;
 
@@ -65,7 +69,7 @@ public class Product implements Serializable {
 
     @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,
                mappedBy = "product", orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>();
+    protected List<Comment> comments = new ArrayList<>();
 
     public String getUpdDate(){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
