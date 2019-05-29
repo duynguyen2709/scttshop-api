@@ -13,6 +13,7 @@ import org.springframework.cache.annotation.EnableCaching;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -95,21 +96,6 @@ public class ScttshopApiApplication implements CommandLineRunner {
             new Thread(() -> {
                 CacheFactoryManager.ORDER_LOG_CACHE =
                         new ConcurrentHashMap<>(orderController.findAll().parallelStream().collect(Collectors.toMap(Order::getOrderID, c -> c)));
-
-//                String json = CacheFactoryManager.ORDER_LOG_CACHE.get("1905270001").getOrderDetail();
-//
-//                ObjectMapper mapper = new ObjectMapper();
-//                TypeReference<HashMap<Integer, Integer>> typeRef
-//                        = new TypeReference<HashMap<Integer,Integer>>() {};
-//
-//                try {
-//                    Map<String, String> map = mapper.readValue(json, typeRef);
-//                    System.out.println(map);
-//                }
-//                catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-
             }).start();
 
         }

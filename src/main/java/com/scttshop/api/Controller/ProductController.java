@@ -103,7 +103,7 @@ public class ProductController {
                 List<DiscountProduct> list        = convertListProduct(listProduct);
 
                 discountProduct.setRelatedProducts(list);
-
+                PRODUCT_CACHE.putIfAbsent(discountProduct.getProductID(),discountProduct);
                 return new ResponseEntity(discountProduct, HttpStatus.OK);
             }
 

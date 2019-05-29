@@ -76,7 +76,6 @@ public class OrderController {
             order.setOrderID(getLastOrderID());
             order.setOrderTime(new Timestamp(System.currentTimeMillis()));
             order.setUpdDate(new Timestamp(System.currentTimeMillis()));
-
             Order res = repo.save(order);
 
             if (res == null)
@@ -95,7 +94,7 @@ public class OrderController {
 
     private String getLastOrderID() {
 
-        String today = LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyMMdd"));
+        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyMMdd"));
 
         String query = "SELECT CAST(orderID AS UNSIGNED) as id FROM OrderLog " +
                 "WHERE orderID LIKE '" + today + "' ORDER BY id desc LIMIT 1";
