@@ -38,7 +38,6 @@ public class PromotionController {
     private EntityManager em;
 
     @GetMapping("/promotions")
-    //@Cacheable(value="promotions",key="'all'")
     public List<Promotion> getListPromotion() {
 
         try {
@@ -78,8 +77,14 @@ public class PromotionController {
     ResponseEntity findById(@PathVariable("id") Integer id) {
         try {
 
-            if (PROMOTION_CACHE!= null)
-                return new ResponseEntity(PROMOTION_CACHE.get(id),HttpStatus.OK);
+            if (PROMOTION_CACHE!= null) {
+
+                Promotion promotion = PROMOTION_CACHE.get(id);
+
+                return promotion == null ? new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK)
+                        : new ResponseEntity(promotion, HttpStatus.OK);
+
+            }
 
             Optional<Promotion> promotion = promotionRepo.findById(id);
 

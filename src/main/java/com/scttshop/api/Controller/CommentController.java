@@ -46,8 +46,12 @@ public class CommentController {
     ResponseEntity findById(@PathVariable("commentID") Integer commentID) {
         try {
 
-            if (COMMENT_CACHE!= null)
-                return new ResponseEntity(COMMENT_CACHE.get(commentID),HttpStatus.OK);
+            if (COMMENT_CACHE != null) {
+                Comment comment = COMMENT_CACHE.get(commentID);
+                return (comment == null ? new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK) :
+                        new ResponseEntity(comment, HttpStatus.OK));
+
+            }
 
             Optional<Comment> comment = repo.findById(commentID);
 

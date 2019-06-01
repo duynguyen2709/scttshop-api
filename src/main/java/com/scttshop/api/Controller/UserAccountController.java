@@ -48,8 +48,14 @@ public class UserAccountController {
     ResponseEntity findById(@PathVariable("username") String username) {
         try {
 
-            if (USER_ACCOUNT_CACHE!= null)
-                return new ResponseEntity(USER_ACCOUNT_CACHE.get(username),HttpStatus.OK);
+            if (USER_ACCOUNT_CACHE!= null) {
+
+                UserAccount userAccount = USER_ACCOUNT_CACHE.get(username);
+
+                return (userAccount == null ?  new  ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK)
+                        : new ResponseEntity<>(userAccount,HttpStatus.OK));
+
+            }
 
             Optional<UserAccount> userAccount = repo.findById(username);
 

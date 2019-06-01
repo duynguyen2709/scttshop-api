@@ -74,6 +74,10 @@ public class ProductController {
             if (PRODUCT_CACHE != null) {
                 DiscountProduct discountProduct = PRODUCT_CACHE.get(id);
 
+                if (discountProduct == null){
+                    new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
+                }
+
                 String query = String.format("SELECT p.productID FROM Product p WHERE p.manufacturer = '%s' " +
                         "AND p.categoryID = '%s' AND p.productID <> '%s' LIMIT 4", discountProduct.getManufacturer(), discountProduct.getCategoryID(), discountProduct.getProductID());
 

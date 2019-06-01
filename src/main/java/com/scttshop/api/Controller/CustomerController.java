@@ -32,7 +32,6 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
     private EntityManager em;
 
     @GetMapping("/customers")
-    //@Cacheable(value="customers", key="'all'")
     public List<Customer> getListCustomer() {
 
         if (CUSTOMER_CACHE != null) {
@@ -49,12 +48,14 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
     }
 
     @GetMapping("/customers/{email}")
-    //@Cacheable(value="customers",key="#email")
     public ResponseEntity findById(@PathVariable("email") String email) {
         try {
 
             if (CUSTOMER_CACHE != null) {
-                return new ResponseEntity(CUSTOMER_CACHE.get(email), HttpStatus.OK);
+                Customer customer = CUSTOMER_CACHE.get(email);
+
+                return customer == null ? new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK) :
+                        new ResponseEntity(customer, HttpStatus.OK);
             }
 
             Optional<Customer> customer = repo.findById(email);

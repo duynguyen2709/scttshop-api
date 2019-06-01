@@ -50,8 +50,14 @@ public class OrderController {
     public ResponseEntity findById(@PathVariable("orderID") String orderID) {
         try {
 
-            if (ORDER_LOG_CACHE!= null)
-                return new ResponseEntity(ORDER_LOG_CACHE.get(orderID),HttpStatus.OK);
+            if (ORDER_LOG_CACHE!= null) {
+
+                Order order = ORDER_LOG_CACHE.get(orderID);
+
+                return (order == null ? new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK):
+                        new ResponseEntity(order, HttpStatus.OK));
+
+            }
 
             Optional<Order> order = repo.findById(orderID);
 

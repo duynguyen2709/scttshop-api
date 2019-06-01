@@ -39,7 +39,6 @@ public class CategoryController {
     ProductController controller;
 
     @GetMapping("/categories")
-    //@Cacheable(value="categories",key="'all'")
     public List<Category> getListCategories(){
         try {
             if (CATEGORY_CACHE != null){
@@ -58,8 +57,13 @@ public class CategoryController {
     //@Cacheable(value="categories",key="#id")
     ResponseEntity findById(@PathVariable("id") Integer id) {
         try {
-            if (CATEGORY_CACHE!= null)
-                return new ResponseEntity(CATEGORY_CACHE.get(id),HttpStatus.OK);
+            if (CATEGORY_CACHE!= null) {
+
+                Category category = CATEGORY_CACHE.get(id);
+                return category == null ? new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK)
+                        :new ResponseEntity(category, HttpStatus.OK);
+
+            }
 
             Optional<Category> category = repo.findById(id);
 
