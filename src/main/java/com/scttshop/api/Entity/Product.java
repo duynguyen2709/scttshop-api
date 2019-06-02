@@ -67,7 +67,7 @@ public class Product implements Serializable {
     @JsonIgnore
     protected Timestamp updDate;
 
-    @OneToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL,
+    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,
                mappedBy = "product", orphanRemoval = true)
     protected List<Comment> comments = new ArrayList<>();
 

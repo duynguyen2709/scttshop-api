@@ -1,7 +1,9 @@
 package com.scttshop.api.Controller;
 
+import com.scttshop.api.Entity.Customer;
 import com.scttshop.api.Entity.EmptyJsonResponse;
 import com.scttshop.api.Entity.Order;
+import com.scttshop.api.Repository.CustomerRepository;
 import com.scttshop.api.Repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.scttshop.api.Cache.CacheFactoryManager.CUSTOMER_CACHE;
 import static com.scttshop.api.Cache.CacheFactoryManager.ORDER_LOG_CACHE;
 
 @RestController
@@ -25,6 +28,9 @@ public class OrderController {
 
     @Autowired
     private OrderRepository repo;
+
+    @Autowired
+    private CustomerRepository customerRepo;
 
     @Autowired
     private EntityManager em;
@@ -82,18 +88,28 @@ public class OrderController {
             order.setOrderID(getLastOrderID());
             order.setOrderTime(new Timestamp(System.currentTimeMillis()));
             order.setUpdDate(new Timestamp(System.currentTimeMillis()));
+            order.setStatus("PROCESSING");
+
             Order res = repo.save(order);
 
-            if (res == null)
+            Optional<Customer> customer = customerRepo.findById(res.getEmail());
+            if (!customer.isPresent())
+                throw new Exception("Customer Not Found");
+
+            customer.get().setTotalBuy(customer.get().getTotalBuy() + res.getTotalPrice());
+            Customer save = customerRepo.save(customer.get());
+
+            if (save == null)
                 throw new Exception();
 
             // INSERT CACHE
             ORDER_LOG_CACHE.put(res.getOrderID(),res);
+            CUSTOMER_CACHE.replace(save.getEmail(),save);
 
             return new ResponseEntity(res,HttpStatus.OK);
         }
         catch (Exception e){
-            System.out.println(String.format("OrderController insertCustomer ex: %s" , e.getMessage()));
+            System.out.println(String.format("OrderController insertOrder ex: %s" , e.getMessage()));
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }

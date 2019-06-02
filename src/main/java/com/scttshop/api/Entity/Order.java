@@ -38,7 +38,7 @@ public class Order implements Serializable {
     private String orderDetail;
 
     @Column
-    private String totalPrice;
+    private long totalPrice;
 
     @Column
     private String paymentType;
@@ -52,6 +52,11 @@ public class Order implements Serializable {
     @Column
     @JsonIgnore
     private Timestamp updDate;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "email", insertable=false, updatable=false, nullable = false)
+    @JsonIgnore
+    protected Customer customer;
 
     @Transient
     @JsonIgnore

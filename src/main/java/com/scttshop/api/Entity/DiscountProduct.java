@@ -39,6 +39,7 @@ public class DiscountProduct extends Product {
             this.category = p.category;
             this.summary = p.summary;
             this.comments = p.comments;
+            this.categoryName = p.category.getCategoryName();
         }
         catch (NullPointerException e) {
         }
