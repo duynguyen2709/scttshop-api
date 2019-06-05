@@ -140,7 +140,7 @@ public class OrderController {
             Optional<Order> old = repo.findById(orderID);
 
             if (!old.isPresent())
-                return ResponseEntity.notFound().build();
+                return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
 
             old.get().copyFieldValues(order);
             old.get().setUpdDate(new Timestamp(System.currentTimeMillis()));
@@ -168,7 +168,7 @@ public class OrderController {
             Optional<Order> old = repo.findById(orderID);
 
             if (!old.isPresent())
-                return ResponseEntity.notFound().build();
+                return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
 
             repo.delete(old.get());
 
@@ -179,6 +179,34 @@ public class OrderController {
         }
         catch (Exception e){
             System.out.println(String.format("OrderController deleteOrder ex: %s" , e.getMessage()));
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+    }
+    
+    @PutMapping("/orders/{orderID}/cancel")
+    public ResponseEntity cancelOrder(@PathVariable(value="orderID") String orderID){
+        
+        try{
+            Optional<Order> old = repo.findById(orderID);
+
+            if (!old.isPresent())
+                return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
+
+            old.get().setStatus("CANCELLED");
+            old.get().setUpdDate(new Timestamp(System.currentTimeMillis()));
+
+            Order updatedOrder = repo.save(old.get());
+
+            if (updatedOrder == null)
+                throw new Exception();
+
+            ORDER_LOG_CACHE.replace(updatedOrder.getOrderID(),updatedOrder);
+
+            return new ResponseEntity(updatedOrder,HttpStatus.OK);
+
+        }
+        catch (Exception e){
+            System.out.println(String.format("OrderController updateOrder ex: %s" , e.getMessage()));
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }

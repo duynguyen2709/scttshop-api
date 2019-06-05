@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.scttshop.api.Cache.CacheFactoryManager.CUSTOMER_CACHE;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -47,7 +49,13 @@ public class Order implements Serializable {
     private String status;
 
     @Column
+    private String shippingAddress;
+
+    @Column
     private String extraInfo;
+
+    @Transient
+    private String customerName;
 
     @Column
     @JsonIgnore
@@ -74,6 +82,13 @@ public class Order implements Serializable {
 
         return listProduct;
     }
+
+    public String getEmail(){
+        customerName = CUSTOMER_CACHE.get(email).getFullName();
+        return email;
+    }
+
+
 
 //    public void setOrderDetail(){
 //        try{
@@ -106,7 +121,6 @@ public class Order implements Serializable {
     }
 
     public void copyFieldValues(Order order) {
-        this.paymentType=order.paymentType;
         this.status = order.status;
         this.extraInfo = order.extraInfo;
     }
