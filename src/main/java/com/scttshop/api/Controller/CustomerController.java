@@ -108,7 +108,7 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
             Optional<Customer> old = repo.findById(email);
 
             if (!old.isPresent()) {
-                return ResponseEntity.notFound().build();
+                return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
             }
 
             old.get().copyFieldValues(customer);
@@ -131,6 +131,35 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
         }
     }
 
+    @PutMapping("/customers/{email}/lock")
+    public ResponseEntity lockCustomer(@PathVariable(value = "email") String email,
+                                         @RequestBody int status) {
+        try {
+            Optional<Customer> old = repo.findById(email);
+
+            if (!old.isPresent()) {
+                return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
+            }
+
+            old.get().setStatus(status);
+            old.get().setUpdDate(new Timestamp(System.currentTimeMillis()));
+
+            Customer updatedUser = repo.save(old.get());
+
+            if (updatedUser == null) {
+                throw new Exception();
+            }
+
+            CUSTOMER_CACHE.replace(updatedUser.getEmail(), updatedUser);
+
+            return new ResponseEntity(updatedUser, HttpStatus.OK);
+
+        }
+        catch (Exception e) {
+            System.out.println(String.format("CustomerController lockCustomer ex: %s", e.getMessage()));
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+    }
     @PutMapping("/customers/{email}/verify")
     public ResponseEntity verifyCustomer(@PathVariable(value = "email") String email) {
         try {
@@ -166,7 +195,7 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
             Optional<Customer> old = repo.findById(email);
 
             if (!old.isPresent()) {
-                return ResponseEntity.notFound().build();
+                return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
             }
 
             repo.delete(old.get());

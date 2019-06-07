@@ -54,6 +54,9 @@ public class UserAccount implements Serializable {
     private Timestamp lastLoginTime;
 
     @Column
+    private int status = 1;
+
+    @Column
     @JsonIgnore
     private Timestamp updDate;
 
@@ -101,6 +104,7 @@ public class UserAccount implements Serializable {
         this.address = user.address;
         this.phoneNumber = user.phoneNumber;
         //this.lastLoginTime = user.lastLoginTime;
+        this.status = 1;
         this.birthDate = user.birthDate;
         this.avatar = user.avatar;
         this.email = user.email;

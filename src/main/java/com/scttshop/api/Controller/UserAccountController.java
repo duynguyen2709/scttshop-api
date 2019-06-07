@@ -108,7 +108,7 @@ public class UserAccountController {
             Optional<UserAccount> old = repo.findById(username);
 
             if (!old.isPresent())
-                return ResponseEntity.notFound().build();
+                return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
 
             old.get().copyFieldValues(userAccount);
             old.get().setUpdDate(new Timestamp(System.currentTimeMillis()));
@@ -129,6 +129,34 @@ public class UserAccountController {
         }
     }
 
+    @PutMapping("/useraccounts/{username}/lock")
+    public ResponseEntity lockUserAccount(@PathVariable(value = "username") String username,
+                                            @RequestBody int status){
+        try{
+            Optional<UserAccount> old = repo.findById(username);
+
+            if (!old.isPresent())
+                return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
+
+            old.get().setStatus(status);
+            old.get().setUpdDate(new Timestamp(System.currentTimeMillis()));
+
+            UserAccount updatedUser = repo.save(old.get());
+
+            if (updatedUser == null)
+                throw new Exception();
+
+            USER_ACCOUNT_CACHE.replace(updatedUser.getUsername(),updatedUser);
+
+            return new ResponseEntity(updatedUser,HttpStatus.OK);
+
+        }
+        catch (Exception e){
+            System.out.println(String.format("UserAccountController lockUserAccount ex: %s" , e.getMessage()));
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @DeleteMapping("/useraccounts/{username}")
     public ResponseEntity deleteUserAccount(@PathVariable(value = "username") String username){
 
@@ -136,7 +164,7 @@ public class UserAccountController {
             Optional<UserAccount> old = repo.findById(username);
 
             if (!old.isPresent())
-                return ResponseEntity.notFound().build();
+                return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
 
             repo.delete(old.get());
 
@@ -158,7 +186,7 @@ public class UserAccountController {
 
             if (!old.isPresent())
             {
-                return ResponseEntity.notFound().build();
+                return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
             }
 
             old.get().setUpdDate(new Timestamp(System.currentTimeMillis()));
@@ -175,4 +203,6 @@ public class UserAccountController {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }
+    
+    
 }

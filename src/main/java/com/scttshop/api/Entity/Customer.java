@@ -40,6 +40,9 @@ public class Customer implements Serializable {
     private boolean isVerified = false;
 
     @Column
+    private int status = 1;
+
+    @Column
     @JsonIgnore
     private Timestamp updDate;
 
@@ -61,5 +64,6 @@ public class Customer implements Serializable {
         this.phoneNumber = customer.phoneNumber;
         this.isVerified = customer.isVerified;
         this.totalBuy = customer.totalBuy;
+        this.status = 1;
     }
 }
