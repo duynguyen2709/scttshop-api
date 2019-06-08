@@ -131,9 +131,9 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
         }
     }
 
-    @PutMapping("/customers/{email}/lock")
+    @PutMapping("/customers/{email}/lock/{status}")
     public ResponseEntity lockCustomer(@PathVariable(value = "email") String email,
-                                         @RequestBody int status) {
+                                       @PathVariable(value = "status") int status) {
         try {
             Optional<Customer> old = repo.findById(email);
 

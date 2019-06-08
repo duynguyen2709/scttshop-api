@@ -129,9 +129,9 @@ public class UserAccountController {
         }
     }
 
-    @PutMapping("/useraccounts/{username}/lock")
+    @PutMapping("/useraccounts/{username}/lock/{status}")
     public ResponseEntity lockUserAccount(@PathVariable(value = "username") String username,
-                                            @RequestBody int status){
+                                          @PathVariable(value = "status") int status){
         try{
             Optional<UserAccount> old = repo.findById(username);
 
