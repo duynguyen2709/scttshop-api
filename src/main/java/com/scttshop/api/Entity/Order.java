@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.scttshop.api.Cache.CacheFactoryManager.CUSTOMER_CACHE;
+import static com.scttshop.api.Cache.CacheFactoryManager.PRODUCT_CACHE;
 
 @Data
 @NoArgsConstructor
@@ -75,6 +76,15 @@ public class Order implements Serializable {
             ObjectMapper mapper = new ObjectMapper();
             TypeReference<List<OrderDetail>> typeRef = new TypeReference<List<OrderDetail>>(){};
             listProduct =  mapper.readValue(orderDetail, typeRef);
+
+            while (PRODUCT_CACHE == null){
+                Thread.sleep(100);
+            }
+
+            for (OrderDetail entity : listProduct){
+                entity.setProductName(PRODUCT_CACHE.get(entity.getProductID()).getProductName());
+                entity.setPrice(PRODUCT_CACHE.get(entity.getProductID()).getDiscountPrice());
+            }
         }
         catch (Exception e){
             listProduct =  Collections.EMPTY_LIST;
