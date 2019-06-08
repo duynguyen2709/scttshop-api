@@ -83,7 +83,7 @@ public class Order implements Serializable {
 
             for (OrderDetail entity : listProduct){
                 entity.setProductName(PRODUCT_CACHE.get(entity.getProductID()).getProductName());
-                entity.setPrice(PRODUCT_CACHE.get(entity.getProductID()).getDiscountPrice());
+                entity.setPrice(PRODUCT_CACHE.get(entity.getProductID()).getDiscountPrice() * entity.getQuantity());
             }
         }
         catch (Exception e){

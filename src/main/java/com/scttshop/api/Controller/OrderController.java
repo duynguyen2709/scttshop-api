@@ -3,6 +3,7 @@ package com.scttshop.api.Controller;
 import com.scttshop.api.Entity.Customer;
 import com.scttshop.api.Entity.EmptyJsonResponse;
 import com.scttshop.api.Entity.Order;
+import com.scttshop.api.Entity.OrderDetail;
 import com.scttshop.api.Repository.CustomerRepository;
 import com.scttshop.api.Repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,6 +87,7 @@ public class OrderController {
 
         try{
             order.setOrderID(getLastOrderID());
+            order.setTotalPrice(calculateTotalPrice(order.getOrderDetail()));
             order.setOrderTime(new Timestamp(System.currentTimeMillis()));
             order.setUpdDate(new Timestamp(System.currentTimeMillis()));
             order.setStatus("PROCESSING");
@@ -112,6 +114,16 @@ public class OrderController {
             System.out.println(String.format("OrderController insertOrder ex: %s" , e.getMessage()));
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    private long calculateTotalPrice(List<OrderDetail> orderDetail) {
+        long total = 0;
+
+        for (OrderDetail entity : orderDetail){
+            total += entity.getPrice();
+        }
+
+        return total;
     }
 
     private String getLastOrderID() {

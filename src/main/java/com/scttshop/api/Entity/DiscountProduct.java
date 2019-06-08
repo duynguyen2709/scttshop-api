@@ -63,7 +63,6 @@ public class DiscountProduct extends Product {
             this.updDate = p.updDate;
             this.categoryID = p.categoryID;
             this.category = p.category;
-            this.summary = p.summary;
             this.comments = p.comments;
             this.categoryName = p.category.getCategoryName();
         }

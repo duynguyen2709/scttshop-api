@@ -32,10 +32,6 @@ public class Product implements Serializable {
     @JsonIgnore
     protected Category category;
 
-    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
-    @JoinColumn(name="productID", insertable=false, updatable=false,nullable = false)
-    protected ProductSummary summary;
-
     @Column(name="categoryID")
     protected Integer categoryID;
 

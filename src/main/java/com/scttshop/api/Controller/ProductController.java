@@ -87,7 +87,6 @@ public class ProductController {
                                                         .map(c -> PRODUCT_CACHE.get(c))
                                                         .collect(Collectors.toList());
                 discountProduct.setRelatedProducts(relatedProducts);
-                discountProduct.setSummary(PRODUCT_CACHE.get(id).getSummary());
                 discountProduct.setComments(PRODUCT_CACHE.get(id).getComments());
 
                 return new ResponseEntity(discountProduct,HttpStatus.OK);
@@ -235,28 +234,4 @@ public class ProductController {
         }
     }
 
-    @PostMapping("/products/{productID}/view")
-    public ResponseEntity increaseView(@PathVariable Integer productID){
-
-        try{
-            Optional<Product> byId = repo.findById(productID);
-
-            if (byId.isPresent())
-            {
-                byId.get().getSummary().setViewCount(byId.get().getSummary().getViewCount() + 1);
-                Product save = repo.save(byId.get());
-
-                if (save == null)
-                    throw new Exception();
-
-
-                PRODUCT_CACHE.get(productID).getSummary().setViewCount(save.getSummary().getViewCount());
-            }
-            return new ResponseEntity(PRODUCT_CACHE.get(productID),HttpStatus.OK);
-        }
-        catch (Exception e){
-            System.out.println(String.format("ProductController increaseView ex: %s" , e.getMessage()));
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        }
-    }
 }
