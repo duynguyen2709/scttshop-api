@@ -35,6 +35,7 @@ public class DiscountProduct extends Product {
             this.sellPrice = p.sellPrice;
             this.isActive = p.isActive;
             this.quantity = p.quantity;
+            this.viewCount = p.viewCount;
             this.updDate = p.updDate;
             this.categoryID = p.categoryID;
             this.category = p.category;
@@ -60,6 +61,7 @@ public class DiscountProduct extends Product {
             this.sellPrice = p.sellPrice;
             this.isActive = p.isActive;
             this.quantity = p.quantity;
+            this.viewCount = p.viewCount;
             this.updDate = p.updDate;
             this.categoryID = p.categoryID;
             this.category = p.category;

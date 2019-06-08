@@ -213,6 +213,32 @@ public class ProductController {
         }
     }
 
+    @PutMapping("/products/{id}/view")
+    public ResponseEntity updateProduct(@PathVariable(value = "id") Integer id){
+        try{
+            Optional<Product> old = repo.findById(id);
+
+            if (!old.isPresent())
+                return ResponseEntity.notFound().build();
+
+            int oldViewCount = old.get().getViewCount();
+            old.get().setViewCount(oldViewCount + 1);
+            old.get().setUpdDate(new Timestamp(System.currentTimeMillis()));
+            Product updatedProduct = repo.save(old.get());
+
+            if (updatedProduct == null)
+                throw new Exception();
+
+            PRODUCT_CACHE.replace(id,new DiscountProduct(updatedProduct));
+            return new ResponseEntity(new DiscountProduct(updatedProduct),HttpStatus.OK);
+
+        }
+        catch (Exception e){
+            System.out.println(String.format("ProductController updateProduct ex: %s" , e.getMessage()));
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @DeleteMapping("/products/{id}")
     public ResponseEntity deleteProduct(@PathVariable(value = "id") Integer id){
 

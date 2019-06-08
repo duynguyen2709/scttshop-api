@@ -53,6 +53,9 @@ public class Product implements Serializable {
     @Column(name="sellPrice")
     protected long sellPrice;
 
+    @Column(name="viewCount")
+    protected int viewCount = 0;
+
     @Column(name="quantity")
     protected int quantity;
 

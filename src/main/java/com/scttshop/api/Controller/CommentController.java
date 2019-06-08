@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.scttshop.api.Cache.CacheFactoryManager.COMMENT_CACHE;
+import static com.scttshop.api.Cache.CacheFactoryManager.CUSTOMER_CACHE;
 
 @RestController
 public class CommentController {
@@ -74,10 +75,12 @@ public class CommentController {
     public ResponseEntity insertComment(@Valid @RequestBody Comment comment){
 
         try{
-            if (comment.getCommentTime() == null || comment.getCommentTime().isEmpty())
-                comment.setCommentTime(new Timestamp(System.currentTimeMillis()));
-
+            comment.setCommentTime(new Timestamp(System.currentTimeMillis()));
             comment.setUpdDate(new Timestamp(System.currentTimeMillis()));
+
+            if (comment.getEmail() != null && !comment.getEmail().isEmpty())
+                comment.setCustomerName(CUSTOMER_CACHE.get(comment.getEmail()).getFullName());
+
             Comment res = repo.save(comment);
 
             if (res == null)
