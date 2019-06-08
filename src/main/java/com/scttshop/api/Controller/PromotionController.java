@@ -131,7 +131,9 @@ public class PromotionController {
                 List<DiscountProduct> productList = new ArrayList<>();
 
                 for (Promotion promotion : listPromotionOfProducts){
-                    productList.add(PRODUCT_CACHE.get(promotion.getAppliedID()));
+                    DiscountProduct prod = new DiscountProduct();
+                    prod.clone(PRODUCT_CACHE.get(promotion.getAppliedID()));
+                    productList.add(prod);
                 }
 
                 return productList;

@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -22,6 +23,31 @@ public class DiscountProduct extends Product {
 
     private List<DiscountProduct> relatedProducts;
 
+    public DiscountProduct clone(DiscountProduct p){
+
+        try {
+            this.productID = p.productID;
+            this.productName = p.productName;
+            this.manufacturer = p.manufacturer;
+            this.image = p.image;
+            this.description = p.description;
+            this.importPrice = p.importPrice;
+            this.sellPrice = p.sellPrice;
+            this.isActive = p.isActive;
+            this.quantity = p.quantity;
+            this.updDate = p.updDate;
+            this.categoryID = p.categoryID;
+            this.category = p.category;
+            this.categoryName = p.category.getCategoryName();
+            this.discountPrice = p.discountPrice;
+            this.promotionDiscount = p.promotionDiscount;
+            this.relatedProducts = Collections.emptyList();
+        }
+        catch (NullPointerException e) {
+        }
+
+        return this;
+    }
 
     public DiscountProduct(Product p) {
         try {
