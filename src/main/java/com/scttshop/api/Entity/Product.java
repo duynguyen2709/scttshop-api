@@ -33,7 +33,7 @@ public class Product implements Serializable {
     protected Category category;
 
     @Column(name="categoryID")
-    protected Integer categoryID;
+    protected int categoryID;
 
     @Transient
     protected String categoryName;

@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.scttshop.api.Cache.CacheFactoryManager.CATEGORY_CACHE;
 import static com.scttshop.api.Cache.CacheFactoryManager.PRODUCT_CACHE;
 
 @RestController
@@ -179,6 +180,16 @@ public class ProductController {
                 throw new Exception();
 
             PRODUCT_CACHE.put(res.getProductID(),new DiscountProduct(res));
+
+            Optional<Category> category = categoryRepository.findById(res.getCategoryID());
+            if (!category.isPresent())
+                throw new Exception("Category Not Found");
+
+            category.get().setTotalProductType(category.get().getTotalProductType() + 1);
+            categoryRepository.save(category.get());
+
+            CATEGORY_CACHE.replace(category.get().getCategoryID(),category.get());
+
             return new ResponseEntity(res,HttpStatus.OK);
         }
         catch (Exception e){
@@ -195,6 +206,26 @@ public class ProductController {
 
             if (!old.isPresent())
                 return ResponseEntity.notFound().build();
+
+            if (old.get().getCategoryID() != product.getCategoryID()){
+                Optional<Category> category = categoryRepository.findById(product.getCategoryID());
+                if (!category.isPresent())
+                    throw new Exception("Category Not Found");
+
+                category.get().setTotalProductType(category.get().getTotalProductType() + 1);
+                categoryRepository.save(category.get());
+
+                CATEGORY_CACHE.replace(category.get().getCategoryID(),category.get());
+
+                category = categoryRepository.findById(old.get().getCategoryID());
+                if (!category.isPresent())
+                    throw new Exception("Category Not Found");
+
+                category.get().setTotalProductType(category.get().getTotalProductType() - 1);
+                categoryRepository.save(category.get());
+
+                CATEGORY_CACHE.replace(category.get().getCategoryID(),category.get());
+            }
 
             old.get().copyFieldValues(product);
             old.get().setUpdDate(new Timestamp(System.currentTimeMillis()));
@@ -250,6 +281,15 @@ public class ProductController {
 
             repo.delete(old.get());
             PRODUCT_CACHE.remove(id);
+
+            Optional<Category> category = categoryRepository.findById(old.get().getCategoryID());
+            if (!category.isPresent())
+                throw new Exception("Category Not Found");
+
+            category.get().setTotalProductType(category.get().getTotalProductType() - 1);
+            categoryRepository.save(category.get());
+
+            CATEGORY_CACHE.replace(category.get().getCategoryID(),category.get());
 
             return new ResponseEntity(HttpStatus.OK);
 
