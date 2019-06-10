@@ -45,7 +45,9 @@ public class ProductController {
 
         try {
             if (PRODUCT_CACHE != null){
-                return new ArrayList<>(PRODUCT_CACHE.values());
+
+                return PRODUCT_CACHE.values().parallelStream().peek(c -> c.setRelatedProducts(Collections.emptyList())).collect(Collectors.toList());
+
             }
 
             List<Product> all = repo.findAll();
@@ -85,8 +87,13 @@ public class ProductController {
                 List<Integer> listProductID = em.createNativeQuery(query).getResultList();
 
                 List<DiscountProduct> relatedProducts =  listProductID.stream()
-                                                        .map(c -> PRODUCT_CACHE.get(c))
+                                                        .map(c -> {
+                                                            DiscountProduct entity = PRODUCT_CACHE.get(c);
+                                                            entity.setRelatedProducts(Collections.emptyList());
+                                                            return entity;
+                                                        })
                                                         .collect(Collectors.toList());
+
                 discountProduct.setRelatedProducts(relatedProducts);
                 discountProduct.setComments(PRODUCT_CACHE.get(id).getComments());
 
@@ -128,6 +135,7 @@ public class ProductController {
             try {
                 DiscountProduct entity = new DiscountProduct(prod);
                 entity.setCategoryName(entity.getCategory().getCategoryName());
+                entity.setRelatedProducts(Collections.emptyList());
                 setPromotion(entity);
 
                 result.add(entity);
