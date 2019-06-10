@@ -13,10 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.EntityManager;
 import javax.validation.Valid;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.scttshop.api.Cache.CacheFactoryManager.CATEGORY_CACHE;
@@ -308,4 +305,32 @@ public class ProductController {
         }
     }
 
+    @PostMapping("/products/search")
+    public ResponseEntity searchProduct(@RequestBody ProductSearch product){
+        try{
+
+            List<DiscountProduct> result = new ArrayList<>(PRODUCT_CACHE.values());
+
+            if (product.getProductName() != null && !product.getProductName().isEmpty())
+                result.removeIf(next -> !next.getProductName().toLowerCase().contains(product.getProductName().toLowerCase()));
+
+            if (product.getIsOnPromotion())
+                result.removeIf(next -> next.getPromotionDiscount() == 0);
+
+            if (product.getMinPrice() > 0)
+                result.removeIf(next -> next.getDiscountPrice() < product.getMinPrice());
+
+            if (product.getMaxPrice() > 0)
+                result.removeIf(next -> next.getDiscountPrice() > product.getMaxPrice());
+
+            if (product.getCategoryID() != 0)
+                result.removeIf(next -> next.getCategoryID() != product.getCategoryID());
+
+            return new ResponseEntity(result,HttpStatus.OK);
+        }
+        catch (Exception e){
+            System.out.println(String.format("ProductController searchProduct ex: %s" , e.getMessage()));
+            return new ResponseEntity(new EmptyJsonResponse(),HttpStatus.OK);
+        }
+    }
 }
