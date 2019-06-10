@@ -203,6 +203,36 @@ public class UserAccountController {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }
+
+    @GetMapping("useraccounts/checkvalid")
+    public ResponseEntity checkUserNotExist(@RequestParam(required = false) String username,@RequestParam(required = false) String email){
+        try {
+            if ((username == null && email == null) || (username != null && username.isEmpty() && email != null && email.isEmpty()))
+                return new ResponseEntity(0, HttpStatus.OK);
+
+            if (username != null && !username.isEmpty()) {
+                UserAccount userAccount = USER_ACCOUNT_CACHE.get(username);
+
+                if (userAccount != null)
+                    return new ResponseEntity(-2, HttpStatus.OK);
+
+            }
+
+            if (email != null && !email.isEmpty()) {
+                for (UserAccount c : USER_ACCOUNT_CACHE.values())
+                    if (c.getEmail().equalsIgnoreCase(email))
+                        //email already existed
+                        return new ResponseEntity(-1, HttpStatus.OK);
+            }
+
+            return new ResponseEntity(1, HttpStatus.OK);
+        }
+        catch (Exception e){
+            System.out.println(String.format("UserAccountController checkUserNotExist ex: %s" , e.getMessage()));
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+
+    }
     
     
 }

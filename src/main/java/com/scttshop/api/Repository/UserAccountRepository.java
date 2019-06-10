@@ -9,3 +9,4 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public interface UserAccountRepository extends JpaRepository<UserAccount,String> {
 }
+
