@@ -57,6 +57,9 @@ public class UserAccount implements Serializable {
     private int status = 1;
 
     @Column
+    private int isVerified = 0;
+
+    @Column
     @JsonIgnore
     private Timestamp updDate;
 
@@ -105,6 +108,7 @@ public class UserAccount implements Serializable {
         this.phoneNumber = user.phoneNumber;
         //this.lastLoginTime = user.lastLoginTime;
         this.status = 1;
+        this.isVerified = 1;
         this.birthDate = user.birthDate;
         this.avatar = user.avatar;
         this.email = user.email;

@@ -62,7 +62,7 @@ public class ScttshopApiApplication implements CommandLineRunner {
             //UserAccount Cache Init
             new Thread(() -> {
                 CacheFactoryManager.USER_ACCOUNT_CACHE =
-                        new ConcurrentHashMap<>(userAccountController.getListUserAccount().parallelStream().collect(Collectors.toMap(UserAccount::getUsername, c -> c)));
+                        new ConcurrentHashMap<>(userAccountController.getListUserAccount(null).parallelStream().collect(Collectors.toMap(UserAccount::getUsername, c -> c)));
             }).start();
 
             //Product Cache Init

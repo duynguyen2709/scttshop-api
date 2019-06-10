@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.scttshop.api.Cache.CacheFactoryManager.USER_ACCOUNT_CACHE;
 
@@ -28,12 +29,19 @@ public class UserAccountController {
     private EntityManager em;
 
     @GetMapping("/useraccounts")
-    public List<UserAccount> getListUserAccount() {
+    public List<UserAccount> getListUserAccount(@RequestParam(required = false,defaultValue = "false") Boolean notVerified) {
 
         try {
             if (USER_ACCOUNT_CACHE != null)
             {
-                return new ArrayList<>(USER_ACCOUNT_CACHE.values());
+                List<UserAccount> userAccounts = new ArrayList<>(USER_ACCOUNT_CACHE.values());
+
+                if (notVerified != null && notVerified){
+                    userAccounts = userAccounts.stream().filter(c -> c.getIsVerified() == 0).collect(Collectors.toList());
+                }
+
+                return  userAccounts;
+
             }
 
             return repo.findAll();
@@ -139,6 +147,33 @@ public class UserAccountController {
                 return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
 
             old.get().setStatus(status);
+            old.get().setUpdDate(new Timestamp(System.currentTimeMillis()));
+
+            UserAccount updatedUser = repo.save(old.get());
+
+            if (updatedUser == null)
+                throw new Exception();
+
+            USER_ACCOUNT_CACHE.replace(updatedUser.getUsername(),updatedUser);
+
+            return new ResponseEntity(updatedUser,HttpStatus.OK);
+
+        }
+        catch (Exception e){
+            System.out.println(String.format("UserAccountController lockUserAccount ex: %s" , e.getMessage()));
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/useraccounts/{username}/verify")
+    public ResponseEntity verifyAccount(@PathVariable(value = "username") String username){
+        try{
+            Optional<UserAccount> old = repo.findById(username);
+
+            if (!old.isPresent())
+                return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
+
+            old.get().setIsVerified(1);
             old.get().setUpdDate(new Timestamp(System.currentTimeMillis()));
 
             UserAccount updatedUser = repo.save(old.get());
