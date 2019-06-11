@@ -17,7 +17,6 @@ import java.util.List;
 public class SubCategory implements Serializable {
 
     @Id
-    @JsonIgnore
     private Integer subCategoryID;
 
     @Column
