@@ -142,7 +142,7 @@ public class CommentController {
 
         }
         catch (Exception e){
-            System.out.println(String.format("CommentController deleteComment ex: %s" , e.getMessage()));
+            System.out.println(String.format("CommentController deleteSubCategory ex: %s" , e.getMessage()));
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
     }

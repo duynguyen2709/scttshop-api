@@ -17,10 +17,10 @@ import java.util.List;
 public class SubCategory implements Serializable {
 
     @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Integer subCategoryID;
 
     @Column
-    @JsonIgnore
     private int categoryID;
 
     @Column
@@ -35,4 +35,8 @@ public class SubCategory implements Serializable {
                mappedBy = "subCategory", orphanRemoval = true)
     @JsonIgnore
     private List<Product> products = new ArrayList<>();
+
+    public void copyFieldValues(SubCategory subCategory) {
+        this.subCategoryName = subCategory.subCategoryName;
+    }
 }
