@@ -38,7 +38,7 @@ public class Category implements Serializable {
     @JsonIgnore
     private List<Product> products = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY,
+    @OneToMany(cascade = CascadeType.ALL,
                mappedBy = "category", orphanRemoval = true)
     private List<SubCategory> subCategories = new ArrayList<>();
 

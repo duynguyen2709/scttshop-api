@@ -36,8 +36,11 @@ public class UserAccountController {
             {
                 List<UserAccount> userAccounts = new ArrayList<>(USER_ACCOUNT_CACHE.values());
 
-                if (notVerified != null && notVerified){
-                    userAccounts = userAccounts.stream().filter(c -> c.getIsVerified() == 0).collect(Collectors.toList());
+                if (notVerified != null){
+                    if (notVerified)
+                        userAccounts = userAccounts.stream().filter(c -> c.getIsVerified() == 0).collect(Collectors.toList());
+                    else
+                        userAccounts = userAccounts.stream().filter(c -> c.getIsVerified() == 1).collect(Collectors.toList());
                 }
 
                 return  userAccounts;
