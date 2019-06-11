@@ -12,6 +12,8 @@ import javax.persistence.ManyToOne;
 import java.util.Collections;
 import java.util.List;
 
+import static com.scttshop.api.Cache.CacheFactoryManager.CATEGORY_CACHE;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -38,17 +40,23 @@ public class DiscountProduct extends Product {
             this.viewCount = p.viewCount;
             this.updDate = p.updDate;
             this.categoryID = p.categoryID;
-            this.category = p.category;
-            this.categoryName = p.category.getCategoryName();
+            while (CATEGORY_CACHE == null)
+                Thread.sleep(100);
+
+            this.category = CATEGORY_CACHE.get(p.categoryID);
+            if (this.category != null)
+                this.categoryName = this.category.getCategoryName();
+
             this.subCategoryID = p.subCategoryID;
-            this.subCategory = p.subCategory;
+            //this.subCategory = p.subCategory;
             if (this.subCategory != null)
-                this.subCategoryName = p.subCategory.getSubCategoryName();
+                this.subCategoryName = this.subCategory.getSubCategoryName();
+
             this.discountPrice = p.discountPrice;
             this.promotionDiscount = p.promotionDiscount;
             this.relatedProducts = Collections.emptyList();
         }
-        catch (NullPointerException e) {
+        catch (Exception e) {
         }
 
         return this;
@@ -68,15 +76,20 @@ public class DiscountProduct extends Product {
             this.viewCount = p.viewCount;
             this.updDate = p.updDate;
             this.categoryID = p.categoryID;
-            this.category = p.category;
+            while (CATEGORY_CACHE == null)
+                Thread.sleep(100);
+
+            this.category = CATEGORY_CACHE.get(p.categoryID);
             this.comments = p.comments;
-            this.categoryName = p.category.getCategoryName();
+            if (this.category != null)
+                this.categoryName = this.category.getCategoryName();
+
             this.subCategoryID = p.subCategoryID;
-            this.subCategory = p.subCategory;
+            //this.subCategory = p.subCategory;
             if (this.subCategory != null)
-                this.subCategoryName = p.subCategory.getSubCategoryName();
+                this.subCategoryName = this.subCategory.getSubCategoryName();
         }
-        catch (NullPointerException e) {
+        catch (Exception e) {
         }
     }
 }

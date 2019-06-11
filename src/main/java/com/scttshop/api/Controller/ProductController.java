@@ -1,10 +1,7 @@
 package com.scttshop.api.Controller;
 
 import com.scttshop.api.Entity.*;
-import com.scttshop.api.Repository.CategoryRepository;
-import com.scttshop.api.Repository.CommentRepository;
-import com.scttshop.api.Repository.ProductRepository;
-import com.scttshop.api.Repository.PromotionRepository;
+import com.scttshop.api.Repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +30,9 @@ public class ProductController {
 
     @Autowired
     private CommentRepository commentRepo;
+
+    @Autowired
+    private SubCategoryRepository subCategoryRepository;
 
     @Autowired
     private EntityManager em;
@@ -205,7 +205,16 @@ public class ProductController {
             if (res == null)
                 throw new Exception();
 
-            PRODUCT_CACHE.put(res.getProductID(),new DiscountProduct(res));
+            DiscountProduct discountProduct = new DiscountProduct(res);
+            if (discountProduct.getCategoryName() == null || discountProduct.getCategoryName().isEmpty()){
+                discountProduct.setCategoryName(CATEGORY_CACHE.get(discountProduct.getCategoryID()).getCategoryName());
+            }
+
+            if (discountProduct.getSubCategoryID() != null){
+                discountProduct.setSubCategoryName(subCategoryRepository.findById(discountProduct.getSubCategoryID()).get().getSubCategoryName());
+            }
+
+            PRODUCT_CACHE.put(res.getProductID(),discountProduct);
 
             Optional<Category> category = categoryRepository.findById(res.getCategoryID());
             if (!category.isPresent())
@@ -216,7 +225,7 @@ public class ProductController {
 
             CATEGORY_CACHE.replace(category.get().getCategoryID(),category.get());
 
-            return new ResponseEntity(res,HttpStatus.OK);
+            return new ResponseEntity(discountProduct,HttpStatus.OK);
         }
         catch (Exception e){
             System.out.println(String.format("ProductController insertProduct ex: %s" , e.getMessage()));
@@ -260,8 +269,17 @@ public class ProductController {
             if (updatedProduct == null)
                 throw new Exception();
 
-            PRODUCT_CACHE.replace(id,new DiscountProduct(updatedProduct));
-            return new ResponseEntity(new DiscountProduct(updatedProduct),HttpStatus.OK);
+            DiscountProduct discountProduct = new DiscountProduct(updatedProduct);
+            if (discountProduct.getCategoryName() == null || discountProduct.getCategoryName().isEmpty()){
+                discountProduct.setCategoryName(CATEGORY_CACHE.get(discountProduct.getCategoryID()).getCategoryName());
+            }
+
+            if (discountProduct.getSubCategoryID() != null){
+                discountProduct.setSubCategoryName(subCategoryRepository.findById(discountProduct.getSubCategoryID()).get().getSubCategoryName());
+            }
+
+            PRODUCT_CACHE.replace(id,discountProduct);
+            return new ResponseEntity(discountProduct,HttpStatus.OK);
 
         }
         catch (Exception e){
