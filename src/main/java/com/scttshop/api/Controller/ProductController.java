@@ -55,11 +55,8 @@ public class ProductController {
                 DiscountProduct discountProduct = new DiscountProduct(prod);
                 discountProduct.setCategoryName(discountProduct.getCategory().getCategoryName());
 
-                if (discountProduct.getSubCategory() != null){
-                    discountProduct.setSubCategoryName(discountProduct.getSubCategory().getSubCategoryName());
-                }
-                else {
-                    discountProduct.setSubCategoryName("");
+                if (discountProduct.getSubCategoryID() != null){
+                    discountProduct.setSubCategoryName(subCategoryRepository.findById(discountProduct.getSubCategoryID()).get().getSubCategoryName());
                 }
 
                 setPromotion(discountProduct);
@@ -110,11 +107,8 @@ public class ProductController {
             if (product.isPresent()) {
                 DiscountProduct discountProduct = new DiscountProduct(product.get());
                 discountProduct.setCategoryName(discountProduct.getCategory().getCategoryName());
-                if (discountProduct.getSubCategory() != null){
-                    discountProduct.setSubCategoryName(discountProduct.getSubCategory().getSubCategoryName());
-                }
-                else {
-                    discountProduct.setSubCategoryName("");
+                if (discountProduct.getSubCategoryID() != null){
+                    discountProduct.setSubCategoryName(subCategoryRepository.findById(discountProduct.getSubCategoryID()).get().getSubCategoryName());
                 }
 
                 setPromotion(discountProduct);
@@ -147,11 +141,8 @@ public class ProductController {
             try {
                 DiscountProduct entity = new DiscountProduct(prod);
                 entity.setCategoryName(entity.getCategory().getCategoryName());
-                if (entity.getSubCategory() != null){
-                    entity.setSubCategoryName(entity.getSubCategory().getSubCategoryName());
-                }
-                else {
-                    entity.setSubCategoryName("");
+                if (entity.getSubCategoryID() != null){
+                    entity.setSubCategoryName(subCategoryRepository.findById(entity.getSubCategoryID()).get().getSubCategoryName());
                 }
 
                 entity.setRelatedProducts(Collections.emptyList());
