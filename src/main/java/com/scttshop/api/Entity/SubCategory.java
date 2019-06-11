@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -16,7 +18,7 @@ public class SubCategory implements Serializable {
 
     @Id
     @JsonIgnore
-    private int subCategoryID;
+    private Integer subCategoryID;
 
     @Column
     @JsonIgnore
@@ -29,4 +31,9 @@ public class SubCategory implements Serializable {
     @JoinColumn(name = "categoryID", insertable=false, updatable=false,nullable = false)
     @JsonIgnore
     private Category category;
+
+    @OneToMany(cascade = CascadeType.ALL,
+               mappedBy = "subCategory", orphanRemoval = true)
+    @JsonIgnore
+    private List<Product> products = new ArrayList<>();
 }

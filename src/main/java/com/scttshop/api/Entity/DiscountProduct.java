@@ -40,6 +40,10 @@ public class DiscountProduct extends Product {
             this.categoryID = p.categoryID;
             this.category = p.category;
             this.categoryName = p.category.getCategoryName();
+            this.subCategoryID = p.subCategoryID;
+            this.subCategory = p.subCategory;
+            if (this.subCategory != null)
+                this.subCategoryName = p.subCategory.getSubCategoryName();
             this.discountPrice = p.discountPrice;
             this.promotionDiscount = p.promotionDiscount;
             this.relatedProducts = Collections.emptyList();
@@ -67,6 +71,10 @@ public class DiscountProduct extends Product {
             this.category = p.category;
             this.comments = p.comments;
             this.categoryName = p.category.getCategoryName();
+            this.subCategoryID = p.subCategoryID;
+            this.subCategory = p.subCategory;
+            if (this.subCategory != null)
+                this.subCategoryName = p.subCategory.getSubCategoryName();
         }
         catch (NullPointerException e) {
         }

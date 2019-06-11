@@ -54,6 +54,14 @@ public class ProductController {
             for (Product prod : all) {
                 DiscountProduct discountProduct = new DiscountProduct(prod);
                 discountProduct.setCategoryName(discountProduct.getCategory().getCategoryName());
+
+                if (discountProduct.getSubCategory() != null){
+                    discountProduct.setSubCategoryName(discountProduct.getSubCategory().getSubCategoryName());
+                }
+                else {
+                    discountProduct.setSubCategoryName("");
+                }
+
                 setPromotion(discountProduct);
 
                 list.add(discountProduct);
@@ -102,6 +110,13 @@ public class ProductController {
             if (product.isPresent()) {
                 DiscountProduct discountProduct = new DiscountProduct(product.get());
                 discountProduct.setCategoryName(discountProduct.getCategory().getCategoryName());
+                if (discountProduct.getSubCategory() != null){
+                    discountProduct.setSubCategoryName(discountProduct.getSubCategory().getSubCategoryName());
+                }
+                else {
+                    discountProduct.setSubCategoryName("");
+                }
+
                 setPromotion(discountProduct);
 
                 String query = String.format("SELECT * FROM Product p WHERE p.manufacturer = '%s' " +
@@ -132,6 +147,13 @@ public class ProductController {
             try {
                 DiscountProduct entity = new DiscountProduct(prod);
                 entity.setCategoryName(entity.getCategory().getCategoryName());
+                if (entity.getSubCategory() != null){
+                    entity.setSubCategoryName(entity.getSubCategory().getSubCategoryName());
+                }
+                else {
+                    entity.setSubCategoryName("");
+                }
+
                 entity.setRelatedProducts(Collections.emptyList());
                 setPromotion(entity);
 
@@ -162,9 +184,8 @@ public class ProductController {
 
     public Promotion isOnPromotion(Integer id){
         try {
-            Promotion promo = promotionRepository.findByTypeAndAppliedIDAndIsActive("PRODUCT", id, 1);
 
-            return promo;
+            return promotionRepository.findByTypeAndAppliedIDAndIsActive("PRODUCT", id, 1);
         }
         catch (Exception e){
             System.out.println(String.format("ProductController isOnPromotion ex: %s" , e.getMessage()));

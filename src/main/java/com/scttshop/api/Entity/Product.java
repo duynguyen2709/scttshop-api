@@ -38,6 +38,18 @@ public class Product implements Serializable {
     @Transient
     protected String categoryName;
 
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "subCategoryID", insertable=false, updatable=false, nullable = false)
+    @JsonIgnore
+    protected SubCategory subCategory;
+
+    @Column(name="subCategoryID")
+    protected Integer subCategoryID;
+
+    @Transient
+    protected String subCategoryName;
+
     @Column(name="manufacturer")
     protected String manufacturer;
 
@@ -78,6 +90,7 @@ public class Product implements Serializable {
     public void copyFieldValues(Product product) {
         this.productName = product.productName;
         this.categoryID = product.categoryID;
+        this.subCategoryID = product.subCategoryID;
         this.manufacturer = product.manufacturer;
         this.image = product.image;
         this.description = product.description;

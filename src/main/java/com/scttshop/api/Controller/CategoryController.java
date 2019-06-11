@@ -36,7 +36,7 @@ public class CategoryController {
     private ProductRepository repo2;
 
     @Autowired
-    ProductController controller;
+    private ProductController controller;
 
     @GetMapping("/categories")
     public List<Category> getListCategories(){
