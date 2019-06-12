@@ -82,13 +82,17 @@ public class CategoryController {
     }
 
     @GetMapping("/categories/{id}/products")
-    List<DiscountProduct> findListProductOfCategory(@PathVariable("id") Integer categoryID) {
+    List<DiscountProduct> findListProductOfCategory(@PathVariable("id") Integer categoryID,@RequestParam(required = false,defaultValue = "true") Boolean isActive) {
         try {
             if (PRODUCT_CACHE != null){
                 List<DiscountProduct> products = new ArrayList<>(PRODUCT_CACHE.values())
                                                 .stream()
                                                 .filter(p->p.getCategoryID() == categoryID)
                                                 .collect(Collectors.toList());
+
+                if (isActive != null && isActive)
+                    products = products.stream().filter(c -> c.getIsActive() == 1).collect(Collectors.toList());
+
                 return products;
             }
 
