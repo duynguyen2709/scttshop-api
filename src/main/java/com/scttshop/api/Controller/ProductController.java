@@ -41,15 +41,20 @@ public class ProductController {
     private EntityManager em;
 
     @GetMapping("/products")
-    public List<DiscountProduct> getListProduct(){
+    public List<DiscountProduct> getListProduct(@RequestParam(required = false,defaultValue = "true") Boolean isActive){
 
         try {
             if (PRODUCT_CACHE != null){
 
-                return PRODUCT_CACHE.values().parallelStream().peek(c -> {
+                List<DiscountProduct> collect = PRODUCT_CACHE.values().parallelStream().peek(c -> {
                     c.setRelatedProducts(Collections.emptyList());
                     setPromotion(c);
                 }).collect(Collectors.toList());
+
+                if (isActive != null && isActive)
+                    collect = collect.stream().filter(c->c.getIsActive() == 1).collect(Collectors.toList());
+
+                return collect;
 
             }
 
@@ -315,8 +320,17 @@ public class ProductController {
             if (updatedProduct == null)
                 throw new Exception();
 
-            PRODUCT_CACHE.replace(id,new DiscountProduct(updatedProduct));
-            return new ResponseEntity(new DiscountProduct(updatedProduct),HttpStatus.OK);
+            DiscountProduct discountProduct = new DiscountProduct(updatedProduct);
+            if (discountProduct.getCategoryName() == null || discountProduct.getCategoryName().isEmpty()){
+                discountProduct.setCategoryName(CATEGORY_CACHE.get(discountProduct.getCategoryID()).getCategoryName());
+            }
+
+            if (discountProduct.getSubCategoryID() != null){
+                discountProduct.setSubCategoryName(subCategoryRepository.findById(discountProduct.getSubCategoryID()).get().getSubCategoryName());
+            }
+
+            PRODUCT_CACHE.replace(id,discountProduct);
+            return new ResponseEntity(discountProduct,HttpStatus.OK);
 
         }
         catch (Exception e){

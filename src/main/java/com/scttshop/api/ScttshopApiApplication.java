@@ -83,7 +83,7 @@ public class ScttshopApiApplication implements CommandLineRunner {
             //Product Cache Init
             new Thread(() -> {
                 CacheFactoryManager.PRODUCT_CACHE =
-                        new ConcurrentHashMap<>(productController.getListProduct().parallelStream().collect(Collectors.toMap(Product::getProductID, c -> c)));
+                        new ConcurrentHashMap<>(productController.getListProduct(null).parallelStream().collect(Collectors.toMap(Product::getProductID, c -> c)));
 
             }).start();
 
