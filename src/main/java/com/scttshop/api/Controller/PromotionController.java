@@ -176,7 +176,9 @@ public class PromotionController {
     public ResponseEntity insertPromotion(@Valid @RequestBody Promotion promotion){
 
         try{
-            promotion.setPromotionID(0);
+            if (promotion.getPromotionDiscount() <= 0)
+                throw new Exception("Promotion Discount Must Be Higher Than 0");
+
             promotion.setUpdDate(new Timestamp(System.currentTimeMillis()));
             Promotion res = promotionRepo.save(promotion);
 
@@ -186,6 +188,11 @@ public class PromotionController {
             res.setAppliedName(promotionRepo.getAppliedName(res.getAppliedID()));
             PROMOTION_CACHE.put(res.getPromotionID(),res);
 
+            DiscountProduct prod = PRODUCT_CACHE.get(res.getAppliedID());
+            prod.setPromotionDiscount(res.getPromotionDiscount());
+            prod.setDiscountPrice(prod.getSellPrice() - prod.getSellPrice() * prod.getPromotionDiscount() / 100);
+
+            PRODUCT_CACHE.replace(prod.getProductID(),prod);
 
             return new ResponseEntity(res,HttpStatus.OK);
         }
@@ -202,17 +209,30 @@ public class PromotionController {
             Optional<Promotion> old = promotionRepo.findById(id);
 
             if (!old.isPresent())
-                return ResponseEntity.notFound().build();
+                throw new Exception("Promotion Not Found");
+
+            DiscountProduct prod = PRODUCT_CACHE.get(old.get().getAppliedID());
+            prod.setPromotionDiscount(0);
+            prod.setDiscountPrice(prod.getSellPrice());
+
+            PRODUCT_CACHE.replace(prod.getProductID(),prod);
 
             old.get().copyFieldValues(promotion);
             old.get().setUpdDate(new Timestamp(System.currentTimeMillis()));
 
             Promotion updatedPromotion = promotionRepo.save(old.get());
             if (updatedPromotion == null)
-                throw new Exception();
+                throw new Exception("Saving new promotion return null");
 
             updatedPromotion.setAppliedName(promotionRepo.getAppliedName(updatedPromotion.getAppliedID()));
             PROMOTION_CACHE.replace(id,updatedPromotion);
+
+            prod = PRODUCT_CACHE.get(updatedPromotion.getAppliedID());
+            prod.setPromotionDiscount(updatedPromotion.getPromotionDiscount());
+            prod.setDiscountPrice(prod.getSellPrice() - prod.getSellPrice() * prod.getPromotionDiscount() / 100);
+
+
+            PRODUCT_CACHE.replace(prod.getProductID(),prod);
 
             return new ResponseEntity(updatedPromotion,HttpStatus.OK);
 
@@ -235,6 +255,13 @@ public class PromotionController {
             promotionRepo.delete(old.get());
 
             PROMOTION_CACHE.remove(id);
+
+            DiscountProduct prod = PRODUCT_CACHE.get(old.get().getAppliedID());
+            prod.setPromotionDiscount(0);
+            prod.setDiscountPrice(prod.getSellPrice());
+
+
+            PRODUCT_CACHE.replace(prod.getProductID(),prod);
 
             return new ResponseEntity(HttpStatus.OK);
 
