@@ -52,7 +52,7 @@ public class PromotionController {
 
                     case "PRODUCT":
                         try {
-                            String productName = promotionRepo.getAppliedName(promotion.getAppliedID());
+                            String productName = prodRepo.findById(promotion.getAppliedID()).get().getProductName();
                             promotion.setAppliedName(productName);
                         }
                         catch (Exception e) {
@@ -93,7 +93,7 @@ public class PromotionController {
 
                     case "PRODUCT":
                         try {
-                            String productName = promotionRepo.getAppliedName(promotion.get().getAppliedID());
+                            String productName = prodRepo.findById(promotion.get().getAppliedID()).get().getProductName();
                             promotion.get().setAppliedName(productName);
                         }
                         catch (Exception e) {
@@ -185,7 +185,7 @@ public class PromotionController {
             if (res == null)
                 throw new Exception();
 
-            res.setAppliedName(promotionRepo.getAppliedName(res.getAppliedID()));
+            res.setAppliedName(prodRepo.findById(promotion.getAppliedID()).get().getProductName());
             PROMOTION_CACHE.put(res.getPromotionID(),res);
 
             DiscountProduct prod = PRODUCT_CACHE.get(res.getAppliedID());
@@ -224,7 +224,7 @@ public class PromotionController {
             if (updatedPromotion == null)
                 throw new Exception("Saving new promotion return null");
 
-            updatedPromotion.setAppliedName(promotionRepo.getAppliedName(updatedPromotion.getAppliedID()));
+            updatedPromotion.setAppliedName(prodRepo.findById(promotion.getAppliedID()).get().getProductName());
             PROMOTION_CACHE.replace(id,updatedPromotion);
 
             prod = PRODUCT_CACHE.get(updatedPromotion.getAppliedID());

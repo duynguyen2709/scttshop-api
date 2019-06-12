@@ -20,7 +20,4 @@ public interface PromotionRepository extends JpaRepository<Promotion,Integer> {
         //@Cacheable(value="promotions",key="#type + #isActive + #id")
         Promotion findByTypeAndAppliedIDAndIsActive(String type,Integer id,Integer isActive);
 
-        @Query("SELECT p.productName from Product p JOIN Promotion s ON p.productID = s.appliedID WHERE s.type = 'PRODUCT' AND p.productID = ?1")
-        @Cacheable(value="promotions",key="'getAppliedName' + #appliedID")
-        String getAppliedName(Integer appliedID);
 }
