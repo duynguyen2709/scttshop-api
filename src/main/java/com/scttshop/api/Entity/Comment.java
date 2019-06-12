@@ -36,10 +36,10 @@ public class Comment implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Timestamp commentTime;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "productID", insertable = false, updatable = false, nullable = false)
-    @JsonIgnore
-    private Product product;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "productID", insertable = false, updatable = false, nullable = false)
+//    @JsonIgnore
+//    private Product product;
 
     @Column
     @JsonIgnore

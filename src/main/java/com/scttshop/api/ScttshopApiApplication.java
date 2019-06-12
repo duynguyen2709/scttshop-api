@@ -53,6 +53,21 @@ public class ScttshopApiApplication implements CommandLineRunner {
     @Override public void run(String... args) throws Exception {
 
         try {
+            //Promotion Cache Init
+            new Thread(() -> {
+                CacheFactoryManager.PROMOTION_CACHE =
+                        new ConcurrentHashMap<>(promotionController.getListPromotion().parallelStream().collect(Collectors.toMap(Promotion::getPromotionID, c -> c)));
+
+            }).start();
+
+
+            //Category Cache Init
+            new Thread(() -> {
+                CacheFactoryManager.CATEGORY_CACHE =
+                        new ConcurrentHashMap<>(categoryController.getListCategories().parallelStream().collect(Collectors.toMap(Category::getCategoryID, c -> c)));
+
+            }).start();
+
             //Customer Cache Init
             new Thread(() -> {
                 CacheFactoryManager.CUSTOMER_CACHE =
@@ -72,19 +87,6 @@ public class ScttshopApiApplication implements CommandLineRunner {
 
             }).start();
 
-            //Promotion Cache Init
-            new Thread(() -> {
-                CacheFactoryManager.PROMOTION_CACHE =
-                        new ConcurrentHashMap<>(promotionController.getListPromotion().parallelStream().collect(Collectors.toMap(Promotion::getPromotionID, c -> c)));
-
-            }).start();
-
-            //Category Cache Init
-            new Thread(() -> {
-                CacheFactoryManager.CATEGORY_CACHE =
-                        new ConcurrentHashMap<>(categoryController.getListCategories().parallelStream().collect(Collectors.toMap(Category::getCategoryID, c -> c)));
-
-            }).start();
 
             //Comment Cache Init
             new Thread(() -> {

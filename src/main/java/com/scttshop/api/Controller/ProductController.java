@@ -10,11 +10,13 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.EntityManager;
 import javax.validation.Valid;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.scttshop.api.Cache.CacheFactoryManager.CATEGORY_CACHE;
-import static com.scttshop.api.Cache.CacheFactoryManager.PRODUCT_CACHE;
+import static com.scttshop.api.Cache.CacheFactoryManager.*;
 
 @RestController
 public class ProductController {
@@ -43,7 +45,10 @@ public class ProductController {
         try {
             if (PRODUCT_CACHE != null){
 
-                return PRODUCT_CACHE.values().parallelStream().peek(c -> c.setRelatedProducts(Collections.emptyList())).collect(Collectors.toList());
+                return PRODUCT_CACHE.values().parallelStream().peek(c -> {
+                    c.setRelatedProducts(Collections.emptyList());
+                    setPromotion(c);
+                }).collect(Collectors.toList());
 
             }
 
@@ -98,6 +103,7 @@ public class ProductController {
 
                 discountProduct.setRelatedProducts(relatedProducts);
                 discountProduct.setComments(PRODUCT_CACHE.get(id).getComments());
+                setPromotion(discountProduct);
 
                 return new ResponseEntity(discountProduct,HttpStatus.OK);
             }
@@ -176,7 +182,16 @@ public class ProductController {
     public Promotion isOnPromotion(Integer id){
         try {
 
-            return promotionRepository.findByTypeAndAppliedIDAndIsActive("PRODUCT", id, 1);
+            while (PROMOTION_CACHE == null)
+                Thread.sleep(10);
+
+            for (Promotion promo : PROMOTION_CACHE.values()){
+                if (promo.getType().equals("PRODUCT") && promo.getAppliedID() == id && promo.getIsActive() == 1)
+                    return promo;
+            }
+
+            return null;
+            //return promotionRepository.findByTypeAndAppliedIDAndIsActive("PRODUCT", id, 1);
         }
         catch (Exception e){
             System.out.println(String.format("ProductController isOnPromotion ex: %s" , e.getMessage()));
@@ -311,8 +326,9 @@ public class ProductController {
         try{
             Optional<Product> old = repo.findById(id);
 
-            if (!old.isPresent())
-                return ResponseEntity.notFound().build();
+            if (!old.isPresent()) {
+                throw new Exception("Product Not Found");
+            }
 
             repo.delete(old.get());
             PRODUCT_CACHE.remove(id);

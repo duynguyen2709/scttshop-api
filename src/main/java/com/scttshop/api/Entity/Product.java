@@ -12,7 +12,11 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.scttshop.api.Cache.CacheFactoryManager.COMMENT_CACHE;
 
 @Data
 @NoArgsConstructor
@@ -78,13 +82,27 @@ public class Product implements Serializable {
     @JsonIgnore
     protected Timestamp updDate;
 
-    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,
-               mappedBy = "product", orphanRemoval = true)
+//    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,
+//               mappedBy = "product", orphanRemoval = true)
+    @Transient
     protected List<Comment> comments = new ArrayList<>();
 
     public String getUpdDate(){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return updDate.toLocalDateTime().format(formatter);
+    }
+
+    public List<Comment> getComments(){
+        while (COMMENT_CACHE == null) {
+            try {
+                Thread.sleep(10);
+            }
+            catch (InterruptedException e) {
+                return Collections.emptyList();
+            }
+        }
+
+        return COMMENT_CACHE.values().stream().filter(c -> c.getProductID() == this.productID).collect(Collectors.toList());
     }
 
     public void copyFieldValues(Product product) {

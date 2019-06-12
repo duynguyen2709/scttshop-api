@@ -41,7 +41,7 @@ public class DiscountProduct extends Product {
             this.updDate = p.updDate;
             this.categoryID = p.categoryID;
             while (CATEGORY_CACHE == null)
-                Thread.sleep(100);
+                Thread.sleep(10);
 
             this.category = CATEGORY_CACHE.get(p.categoryID);
             if (this.category != null)
@@ -77,7 +77,7 @@ public class DiscountProduct extends Product {
             this.updDate = p.updDate;
             this.categoryID = p.categoryID;
             while (CATEGORY_CACHE == null)
-                Thread.sleep(100);
+                Thread.sleep(10);
 
             this.category = CATEGORY_CACHE.get(p.categoryID);
             this.comments = p.comments;

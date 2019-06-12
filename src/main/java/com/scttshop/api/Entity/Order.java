@@ -78,7 +78,7 @@ public class Order implements Serializable {
             listProduct =  mapper.readValue(orderDetail, typeRef);
 
             while (PRODUCT_CACHE == null){
-                Thread.sleep(100);
+                Thread.sleep(10);
             }
 
             for (OrderDetail entity : listProduct){
