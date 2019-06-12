@@ -133,7 +133,8 @@ public class PromotionController {
                 for (Promotion promotion : listPromotionOfProducts){
                     DiscountProduct prod = new DiscountProduct();
                     prod.clone(PRODUCT_CACHE.get(promotion.getAppliedID()));
-                    productList.add(prod);
+                    if (prod.getIsActive() == 1)
+                        productList.add(prod);
                 }
 
                 return productList;
