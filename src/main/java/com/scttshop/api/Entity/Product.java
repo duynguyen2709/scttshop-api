@@ -93,6 +93,8 @@ public class Product implements Serializable {
     }
 
     public List<Comment> getComments(){
+
+
         while (COMMENT_CACHE == null) {
             try {
                 Thread.sleep(10);

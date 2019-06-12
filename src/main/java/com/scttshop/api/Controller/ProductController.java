@@ -5,6 +5,7 @@ import com.scttshop.api.Repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
@@ -85,7 +86,7 @@ public class ProductController {
                 DiscountProduct discountProduct = PRODUCT_CACHE.get(id);
 
                 if (discountProduct == null){
-                    new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
+                    return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
                 }
 
                 String query = String.format("SELECT p.productID FROM Product p WHERE p.manufacturer = '%s' " +
@@ -102,7 +103,6 @@ public class ProductController {
                                                         .collect(Collectors.toList());
 
                 discountProduct.setRelatedProducts(relatedProducts);
-                discountProduct.setComments(PRODUCT_CACHE.get(id).getComments());
                 setPromotion(discountProduct);
 
                 return new ResponseEntity(discountProduct,HttpStatus.OK);
@@ -126,6 +126,8 @@ public class ProductController {
                 List<DiscountProduct> list        = convertListProduct(listProduct);
 
                 discountProduct.setRelatedProducts(list);
+                discountProduct.setComments(COMMENT_CACHE.values().stream().filter(c -> c.getProductID() == id).collect(Collectors.toList()));
+
                 PRODUCT_CACHE.putIfAbsent(discountProduct.getProductID(),discountProduct);
                 return new ResponseEntity(discountProduct, HttpStatus.OK);
             }
@@ -201,6 +203,7 @@ public class ProductController {
 
 
     @PostMapping("/products")
+    @Transactional
     public ResponseEntity insertProduct(@Valid @RequestBody Product product){
 
         try{
@@ -240,13 +243,14 @@ public class ProductController {
     }
 
     @PutMapping("/products/{id}")
+    @Transactional
     public ResponseEntity updateProduct(@PathVariable(value = "id") Integer id,
                                         @Valid @RequestBody Product product){
         try{
             Optional<Product> old = repo.findById(id);
 
             if (!old.isPresent())
-                return ResponseEntity.notFound().build();
+                throw new Exception("Product Not Found");
 
             if (old.get().getCategoryID() != product.getCategoryID()){
                 Optional<Category> category = categoryRepository.findById(product.getCategoryID());
@@ -295,7 +299,8 @@ public class ProductController {
     }
 
     @PutMapping("/products/{id}/view")
-    public ResponseEntity updateProduct(@PathVariable(value = "id") Integer id){
+    @Transactional
+    public ResponseEntity viewProduct(@PathVariable(value = "id") Integer id){
         try{
             Optional<Product> old = repo.findById(id);
 
@@ -321,6 +326,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/products/{id}")
+    @Transactional
     public ResponseEntity deleteProduct(@PathVariable(value = "id") Integer id){
 
         try{
