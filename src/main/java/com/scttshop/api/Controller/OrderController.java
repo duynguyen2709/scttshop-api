@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.scttshop.api.Cache.CacheFactoryManager.*;
 
@@ -151,20 +152,34 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
     private String getLastOrderID() {
 
         String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyMMdd"));
+        List<String> listOrderID = new ArrayList<>(ORDER_LOG_CACHE.keySet()).stream()
+                     .filter(c -> c.startsWith(today)).collect(Collectors.toList());
 
-        String query = "SELECT CAST(orderID AS UNSIGNED) as id FROM OrderLog " + "WHERE orderID LIKE '" + today +
-                "' ORDER BY id desc LIMIT 1";
-        try {
-            String lastOrderID = String.valueOf(em.createNativeQuery(query).getSingleResult());
-
-            if (lastOrderID == null || lastOrderID.isEmpty()) {
-                return (today + "0001");
-            }
-            return String.valueOf(Long.parseLong(lastOrderID) + 1);
-        }
-        catch (Exception e) {
+        if (listOrderID.size() == 0)
             return (today + "0001");
+
+        long max = 0;
+        for (String id : listOrderID)
+        {
+            if (Long.parseLong(id) > max)
+                max = Long.parseLong(id);
         }
+
+        return String.valueOf(max + 1);
+
+//        String query = "SELECT CAST(orderID AS UNSIGNED) as id FROM OrderLog " + "WHERE orderID LIKE '" + today +
+//                "' ORDER BY id desc LIMIT 1";
+//        try {
+//            String lastOrderID = String.valueOf(em.createNativeQuery(query).getSingleResult());
+//
+//            if (lastOrderID == null || lastOrderID.isEmpty()) {
+//                return (today + "0001");
+//            }
+//            return String.valueOf(Long.parseLong(lastOrderID) + 1);
+//        }
+//        catch (Exception e) {
+//            return (today + "0001");
+//        }
     }
 
     @PutMapping("/orders/{orderID}")

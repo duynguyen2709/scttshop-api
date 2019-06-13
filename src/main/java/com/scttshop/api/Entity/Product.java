@@ -122,7 +122,7 @@ public class Product implements Serializable {
 
     public static Product ReverseClone(DiscountProduct product){
         Product res = new Product();
-
+        res.productID = product.productID;
         res.productName = product.productName;
         res.categoryID = product.categoryID;
         res.subCategoryID = product.subCategoryID;
