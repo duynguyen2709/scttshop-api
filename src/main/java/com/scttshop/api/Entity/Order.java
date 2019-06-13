@@ -44,9 +44,6 @@ public class Order implements Serializable {
     private long totalPrice;
 
     @Column
-    private String paymentType;
-
-    @Column
     private String status;
 
     @Column

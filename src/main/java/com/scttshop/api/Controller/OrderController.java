@@ -83,9 +83,11 @@ public class OrderController {
     }
 
     @PostMapping("/orders")
-    public ResponseEntity insertOrder(@Valid @RequestBody Order order){
+    public ResponseEntity insertOrder(@RequestBody Order order){
 
         try{
+            System.out.println("Order: "  + order);
+
             order.setOrderID(getLastOrderID());
             order.setTotalPrice(calculateTotalPrice(order.getOrderDetail()));
             order.setOrderTime(new Timestamp(System.currentTimeMillis()));
