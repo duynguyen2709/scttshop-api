@@ -81,8 +81,6 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
     @PostMapping("/orders") public ResponseEntity insertOrder(@RequestBody Order order) {
 
         try {
-            System.out.println("Order: " + order);
-
             order.setOrderID(getLastOrderID());
             order.setTotalPrice(calculateTotalPrice(order.getOrderDetail()));
             order.setOrderTime(new Timestamp(System.currentTimeMillis()));
@@ -132,7 +130,7 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
                 if (prod.getQuantity() == 0)
                     prod.setIsActive(0);
 
-                if (productRepo.save(prod) == null) {
+                if (productRepo.save(Product.ReverseClone(prod)) == null) {
                     throw new Exception(String.format("Product %s Update Quantity Failed", entity.getProductID()));
                 }
 

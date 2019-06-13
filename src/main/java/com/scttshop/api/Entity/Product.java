@@ -119,4 +119,22 @@ public class Product implements Serializable {
         this.isActive = product.isActive;
         this.quantity = product.quantity;
     }
+
+    public static Product ReverseClone(DiscountProduct product){
+        Product res = new Product();
+
+        res.productName = product.productName;
+        res.categoryID = product.categoryID;
+        res.subCategoryID = product.subCategoryID;
+        res.manufacturer = product.manufacturer;
+        res.image = product.image;
+        res.description = product.description;
+        res.importPrice = product.importPrice;
+        res.sellPrice = product.sellPrice;
+        res.viewCount = product.viewCount;
+        res.isActive = product.isActive;
+        res.quantity = product.quantity;
+
+        return res;
+    }
 }
