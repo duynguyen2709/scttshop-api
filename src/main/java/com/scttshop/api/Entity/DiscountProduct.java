@@ -40,9 +40,6 @@ public class DiscountProduct extends Product {
             this.viewCount = p.viewCount;
             this.updDate = p.updDate;
             this.categoryID = p.categoryID;
-            while (CATEGORY_CACHE == null)
-                Thread.sleep(10);
-
             this.category = CATEGORY_CACHE.get(p.categoryID);
             if (this.category != null)
                 this.categoryName = this.category.getCategoryName();

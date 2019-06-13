@@ -87,7 +87,14 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
             order.setUpdDate(new Timestamp(System.currentTimeMillis()));
             order.setStatus("PROCESSING");
 
+            System.out.println(String.format("orderID %s, totalPrice %s, email %s, shippingAddress %s, orderDetail \n%s",
+                    order.getOrderID(),order.getTotalPrice(),
+                    order.getEmail(),order.getShippingAddress(),
+                    order.getOrderDetail()));
+
             Order res = repo.save(order);
+            if (res == null)
+                throw new Exception("Insert Order Failed");
 
             Optional<Customer> customer = customerRepo.findById(res.getEmail());
             if (!customer.isPresent()) {
@@ -98,7 +105,7 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
             Customer save = customerRepo.save(customer.get());
 
             if (save == null) {
-                throw new Exception();
+                throw new Exception("Update Customer TotalBuy Failed");
             }
 
             // INSERT CACHE
