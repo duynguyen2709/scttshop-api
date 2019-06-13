@@ -74,10 +74,6 @@ public class Order implements Serializable {
             TypeReference<List<OrderDetail>> typeRef = new TypeReference<List<OrderDetail>>(){};
             listProduct =  mapper.readValue(orderDetail, typeRef);
 
-            while (PRODUCT_CACHE == null){
-                Thread.sleep(10);
-            }
-
             for (OrderDetail entity : listProduct){
                 entity.setProductName(PRODUCT_CACHE.get(entity.getProductID()).getProductName());
                 entity.setPrice(PRODUCT_CACHE.get(entity.getProductID()).getDiscountPrice() * entity.getQuantity());
