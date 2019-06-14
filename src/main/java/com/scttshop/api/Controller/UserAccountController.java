@@ -168,6 +168,34 @@ public class UserAccountController {
         }
     }
 
+    @PutMapping("/useraccounts/{username}/changerole")
+    public ResponseEntity changeRole(@PathVariable(value = "username") String username,
+                                        @Valid @RequestBody UserAccount userAccount){
+        try{
+            Optional<UserAccount> old = repo.findById(username);
+
+            if (!old.isPresent())
+                return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
+
+            old.get().setRole(userAccount.getRole());
+            old.get().setUpdDate(new Timestamp(System.currentTimeMillis()));
+
+            UserAccount updatedUser = repo.save(old.get());
+
+            if (updatedUser == null)
+                throw new Exception();
+
+            USER_ACCOUNT_CACHE.replace(updatedUser.getUsername(),updatedUser);
+
+            return new ResponseEntity(updatedUser,HttpStatus.OK);
+
+        }
+        catch (Exception e){
+            System.out.println(String.format("UserAccountController changeRole ex: %s" , e.getMessage()));
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @PutMapping("/useraccounts/{username}/verify")
     public ResponseEntity verifyAccount(@PathVariable(value = "username") String username){
         try{
