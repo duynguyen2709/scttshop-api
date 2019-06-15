@@ -393,10 +393,14 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
         }
     }
 
-    @PostMapping("/products/search") public ResponseEntity searchProduct(@RequestBody ProductSearch product) {
+    @PostMapping("/products/search")
+    public ResponseEntity advanceSearchProduct(@RequestBody ProductSearch product) {
         try {
 
             List<DiscountProduct> result = new ArrayList<>(PRODUCT_CACHE.values());
+
+            if (product == null)
+                return new ResponseEntity(Collections.emptyList(),HttpStatus.OK);
 
             if (product.getProductName() != null && !product.getProductName().isEmpty()) {
                 result.removeIf(next -> !next.getProductName().toLowerCase().contains(product.getProductName().toLowerCase()));
@@ -417,6 +421,25 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
             if (product.getCategoryID() != 0) {
                 result.removeIf(next -> next.getCategoryID() != product.getCategoryID());
             }
+
+            return new ResponseEntity(result, HttpStatus.OK);
+        }
+        catch (Exception e) {
+            System.out.println(String.format("ProductController advanceSearchProduct ex: %s", e.getMessage()));
+            return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
+        }
+    }
+
+    @GetMapping("/products/search/{productName}")
+    public ResponseEntity searchProduct(@PathVariable String productName) {
+        try {
+
+            List<DiscountProduct> result = new ArrayList<>(PRODUCT_CACHE.values());
+
+            if (productName.isEmpty())
+                return new ResponseEntity(Collections.EMPTY_LIST,HttpStatus.OK);
+
+            result.removeIf(next -> !next.getProductName().toLowerCase().contains(productName.toLowerCase()));
 
             return new ResponseEntity(result, HttpStatus.OK);
         }
