@@ -402,6 +402,8 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
             if (product == null)
                 return new ResponseEntity(Collections.emptyList(),HttpStatus.OK);
 
+            System.out.println(product);
+
             if (product.getProductName() != null && !product.getProductName().isEmpty()) {
                 result.removeIf(next -> !next.getProductName().toLowerCase().contains(product.getProductName().toLowerCase()));
             }
