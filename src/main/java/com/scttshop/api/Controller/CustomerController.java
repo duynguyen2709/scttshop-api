@@ -3,6 +3,7 @@ package com.scttshop.api.Controller;
 import com.scttshop.api.Cache.CacheFactoryManager;
 import com.scttshop.api.Entity.Customer;
 import com.scttshop.api.Entity.EmptyJsonResponse;
+import com.scttshop.api.Entity.Order;
 import com.scttshop.api.Repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.scttshop.api.Cache.CacheFactoryManager.*;
 
@@ -54,8 +56,13 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
             if (CUSTOMER_CACHE != null) {
                 Customer customer = CUSTOMER_CACHE.get(email);
 
-                return customer == null ? new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK) :
-                        new ResponseEntity(customer, HttpStatus.OK);
+                if (customer == null)
+                    return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
+
+                List<Order> orders = ORDER_LOG_CACHE.values().stream().filter(c -> c.getEmail().equalsIgnoreCase(customer.getEmail())).collect(Collectors.toList());
+                customer.setOrders(orders);
+
+                return new ResponseEntity(customer,HttpStatus.OK);
             }
 
             Optional<Customer> customer = repo.findById(email);
