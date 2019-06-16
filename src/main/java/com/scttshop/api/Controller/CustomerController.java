@@ -19,6 +19,7 @@ import javax.persistence.EntityManager;
 import javax.validation.Valid;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.scttshop.api.Cache.CacheFactoryManager.*;
 
@@ -57,8 +58,13 @@ public class CustomerController {
             if (CUSTOMER_CACHE != null) {
                 Customer customer = CUSTOMER_CACHE.get(email);
 
-                return customer == null ? new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK) :
-                        new ResponseEntity(customer, HttpStatus.OK);
+                if (customer == null)
+                    return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
+
+                List<Order> orders = ORDER_LOG_CACHE.values().stream().filter(c -> c.getEmail().equalsIgnoreCase(customer.getEmail())).collect(Collectors.toList());
+                customer.setOrders(orders);
+
+                return new ResponseEntity(customer,HttpStatus.OK);
             }
 
             Optional<Customer> customer = repo.findById(email);
