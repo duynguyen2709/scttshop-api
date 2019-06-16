@@ -201,6 +201,10 @@ public class CustomerController {
     public ResponseEntity deleteCustomer(@PathVariable(value = "email") String email) {
 
         try {
+            List<Order> byEmail = orderRepo.findByEmail(email);
+            for (Order order : byEmail)
+                orderRepo.delete(order);
+
             Optional<Customer> old = repo.findById(email);
 
             if (!old.isPresent()) {
@@ -220,10 +224,6 @@ public class CustomerController {
 
             for (String order:orderID)
                 ORDER_LOG_CACHE.remove(order);
-
-            List<Order> byEmail = orderRepo.findByEmail(email);
-            for (Order order : byEmail)
-                orderRepo.delete(order);
 
             return new ResponseEntity(HttpStatus.OK);
 
