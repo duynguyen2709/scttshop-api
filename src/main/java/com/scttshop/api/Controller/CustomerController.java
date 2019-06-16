@@ -3,7 +3,9 @@ package com.scttshop.api.Controller;
 import com.scttshop.api.Cache.CacheFactoryManager;
 import com.scttshop.api.Entity.Customer;
 import com.scttshop.api.Entity.EmptyJsonResponse;
+import com.scttshop.api.Entity.Order;
 import com.scttshop.api.Repository.CustomerRepository;
+import com.scttshop.api.Repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -16,17 +18,18 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.EntityManager;
 import javax.validation.Valid;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.scttshop.api.Cache.CacheFactoryManager.*;
 
-@RestController public class CustomerController {
+@RestController
+public class CustomerController {
 
     @Autowired
     private CustomerRepository repo;
+
+    @Autowired
+    private OrderRepository orderRepo;
 
     @Autowired
     private EntityManager em;
@@ -201,6 +204,20 @@ import static com.scttshop.api.Cache.CacheFactoryManager.*;
             repo.delete(old.get());
 
             CUSTOMER_CACHE.remove(email);
+
+            List<String> orderID = new ArrayList<>();
+
+            for (Map.Entry<String, Order> entry : ORDER_LOG_CACHE.entrySet()){
+                if (entry.getValue().getEmail().equalsIgnoreCase(email))
+                    orderID.add(entry.getKey());
+            }
+
+            for (String order:orderID)
+                ORDER_LOG_CACHE.remove(order);
+
+            List<Order> byEmail = orderRepo.findByEmail(email);
+            for (Order order : byEmail)
+                orderRepo.delete(order);
 
             return new ResponseEntity(HttpStatus.OK);
 

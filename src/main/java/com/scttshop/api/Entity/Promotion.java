@@ -38,14 +38,6 @@ public class Promotion implements Serializable {
     private String promotionName;
 
     @Column
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private Timestamp timeFrom;
-
-    @Column
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private Timestamp timeTo;
-
-    @Column
     private int isActive;
 
     @Column
@@ -57,23 +49,13 @@ public class Promotion implements Serializable {
         return updDate.toLocalDateTime().format(formatter);
     }
 
-    public String getTimeFrom(){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return timeFrom.toLocalDateTime().format(formatter);
-    }
 
-    public String getTimeTo(){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return timeTo.toLocalDateTime().format(formatter);
-    }
 
     public void copyFieldValues(Promotion promotion) {
         this.type = promotion.type;
         this.appliedID = promotion.appliedID;
         this.promotionDiscount = promotion.promotionDiscount;
         this.promotionName = promotion.promotionName;
-        this.timeFrom = promotion.timeFrom;
-        this.timeTo = promotion.timeTo;
         this.isActive = promotion.isActive;
     }
 }
